@@ -417,13 +417,22 @@
         function closeContactModal() { document.getElementById("contact-modal").style.display = "none"; } 
         
         function sendWA() { 
-            const p = document.getElementById("branch-select").value; 
-            let textMsg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: " + window.contactItemName + "\\nرقم الصنف: " + window.contactItemCode + " | السعر: " + window.contactItemPrice + " د.ل"; 
-            if(window.contactItemLink) { textMsg += "\\n🌐 [ 📸 صورة الصنف: " + window.contactItemLink + " ]"; } 
-            const text = encodeURIComponent(textMsg); 
-            window.open("https://wa.me/" + p + "?text=" + text, "_blank"); 
-            closeContactModal(); 
-        } 
+    const p = document.getElementById("branch-select").value; 
+    
+    // إضافة نجمة (*) لجعل اسم الصنف بارزاً (Bold) في الواتساب
+    let textMsg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + window.contactItemName + "*\n";
+    textMsg += "رقم الصنف: " + window.contactItemCode + " | السعر: " + window.contactItemPrice + " د.ل\n";
+    
+    if(window.contactItemLink) { 
+        textMsg += "-----------------------------------\n"; // الخط الفاصل تحت البيانات
+        textMsg += "❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\n"; // نزول الرابط لسطر جديد
+        textMsg += window.contactItemLink; 
+    } 
+    
+    const text = encodeURIComponent(textMsg); 
+    window.open("https://wa.me/" + p + "?text=" + text, "_blank"); 
+    closeContactModal(); 
+}
         
         function makeCall() { const p = document.getElementById("branch-select").value; window.location.href = "tel:+" + p; closeContactModal(); }
 
