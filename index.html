@@ -120,7 +120,38 @@
         .btn-call { background: #007bff; border: 1px solid #0056b3; }
         .btn-close-modal { background: #dc3545; color: white; padding: 5px 15px; border: none; border-radius: 5px; cursor: pointer; font-family: "Cairo"; font-size:11px; margin-top: 5px; font-weight:bold; }
 
-        @media (max-width: 600px) { .header-content-section { flex-wrap: wrap; } .branches-image-wrapper { flex: 0 0 60px; height: 60px; } .faidy-top-bar { padding: 8px; } .brand-right-title { font-size: 13px; font-weight: 700; } .faidy-logo-container { gap: 6px; } .faidy-logo-img { width: 26px; height: 26px; border-width: 1px; } .header-row { flex-direction: row; justify-content: space-between; } .search-box { width: 50%; } }
+        /* ========================================================
+           تعديلات العرض على شاشات الموبايل (نظام العمودين الاحترافي)
+           ======================================================== */
+        @media (max-width: 600px) { 
+            .header-content-section { flex-wrap: wrap; } 
+            .branches-image-wrapper { flex: 0 0 60px; height: 60px; } 
+            .faidy-top-bar { padding: 8px; } 
+            .brand-right-title { font-size: 13px; font-weight: 700; } 
+            .faidy-logo-container { gap: 6px; } 
+            .faidy-logo-img { width: 26px; height: 26px; border-width: 1px; } 
+            .search-box { width: 50%; } 
+            
+            /* تحويل الحاوية الرئيسية إلى شبكة بعمودين */
+            #main-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; padding: 5px !important; }
+            
+            /* تعديل الكروت لتناسب الحجم الصغير */
+            .item-card { width: 100% !important; max-width: none !important; margin-top: 6px !important; padding: 8px !important; border-radius: 8px !important; }
+            .header-row { flex-direction: column !important; align-items: center !important; gap: 5px !important; padding-top: 5px !important; border-bottom: 1px dashed #D4AF37 !important;}
+            .name-display { font-size: 13px !important; text-align: center !important; width: 100%; }
+            .left-controls-group { flex-direction: row !important; justify-content: center !important; align-items: center !important; flex-wrap: wrap !important; width: 100% !important; gap: 8px !important; }
+            .price-container { font-size: 14px !important; }
+            .img-preview-container img { height: 110px !important; }
+            .order-btn-card { font-size: 10px !important; padding: 6px !important; margin-top: 5px !important; }
+            .gold-drive-btn { font-size: 9px !important; padding: 4px !important; }
+            .code-tag { font-size: 8px !important; padding: 2px 4px !important; left: 5px !important; top: -8px !important; }
+            .cat-select-inline { font-size: 8px !important; right: 5px !important; top: -8px !important; }
+            .delete-item-btn { width: 20px !important; height: 20px !important; font-size: 12px !important; top: -8px !important; left: -8px !important; }
+            .featured-badge { font-size: 8px !important; padding: 2px 6px !important; top: 6px !important; }
+            .unit-area { flex-direction: column; align-items: center; }
+            .unit-display { min-width: 20px; text-align: center; }
+        }
+
         @media print {
             body { background: white !important; padding: 0 !important; margin: 10mm 15mm !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .no-print, .admin-only, .customer-only, .delete-item-btn, .cat-select-inline, #issue-filters, .menu-export-checkbox-container { display: none !important; }
@@ -658,7 +689,7 @@
         }
 
         // =========================================================
-        // دوال الزبون (واتساب والاتصال) - تم تصحيح الهروب النصي هنا 
+        // دوال الزبون (واتساب والاتصال)
         // =========================================================
         function updateCustomerBranchesModal() {
             let selectEl = document.getElementById("branch-select"); selectEl.innerHTML = "";
@@ -672,7 +703,6 @@
         
         function sendWA() { 
             const p = document.getElementById("branch-select").value; 
-            // تم التعديل إلى \n لضمان النزول لسطر جديد بشكل صحيح وعدم كسر الرابط
             let textMsg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + window.contactItemName + "*\nرقم الصنف: " + window.contactItemCode + " | السعر: " + window.contactItemPrice + " د.ل\n"; 
             if(window.contactItemLink) { textMsg += "-----------------------------------\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\n" + window.contactItemLink; } 
             window.open("https://wa.me/" + p + "?text=" + encodeURIComponent(textMsg), "_blank"); closeContactModal(); 
@@ -794,7 +824,6 @@
             zip.generateAsync({type: "blob"}).then(content => { saveAs(content, "تجهيز_قوقل_درايف.zip"); alert("✅ تم بنجاح! الملف المضغوط يحتوي على الإكسل وصور مرقمة بالتسلسل 100%."); });
         }
 
-        // الدالة المعدلة جذريا: الاستيراد بدون انتظار الإنترنت (Offline-First)
         function processLinksExcel(input) {
             const file = input.files[0];
             if (!file) return;
@@ -913,7 +942,7 @@
         }
 
         // =========================================================
-        // تصدير المنيو المستقل للزبائن (HTML Export) 
+        // تصدير المنيو المستقل للزبائن (HTML Export) - مدعوم بالعمودين للموبايل
         // =========================================================
         function exportStandaloneMenu() {
             if(allItemsGlobal.length === 0) { alert("⚠️ لا توجد أصناف لتصديرها."); return; }
@@ -934,11 +963,11 @@
                 const safePrice = (item.price || '0.00').toString().replace(/'/g, "&#39;").replace(/"/g, '&quot;');
 
                 cardsHTML += `
-                <div style="background:white; padding:12px; border-radius:12px; text-align:center; box-shadow:0 3px 6px rgba(0,0,0,0.1); border-bottom:4px solid #800000; break-inside: avoid;">
-                    <div style="background:#333; color:#fff; padding:2px 12px; border-radius:4px; font-size:10px; font-weight:bold; display:inline-block; margin-bottom:10px;">رقم الصنف: ${safeCode}</div>
+                <div class="card" style="background:white; padding:12px; border-radius:12px; text-align:center; box-shadow:0 3px 6px rgba(0,0,0,0.1); border-bottom:4px solid #800000; break-inside: avoid;">
+                    <div class="code" style="background:#333; color:#fff; padding:2px 12px; border-radius:4px; font-size:10px; font-weight:bold; display:inline-block; margin-bottom:10px;">رقم الصنف: ${safeCode}</div>
                     <img src="${item.img || ''}" loading="lazy" style="width:100%; height:200px; object-fit:contain; margin-bottom:10px; background:#f9f9f9; border-radius:8px; border:1px dashed #ddd;">
                     <h3 style="margin:0 0 5px 0; color:#800000; font-size:16px;">${item.name || ''}</h3>
-                    <div style="color:#d49500; font-weight:bold; font-size:16px; margin-bottom:10px;">${item.price || '0.00'} د.ل</div>
+                    <div class="price" style="color:#d49500; font-weight:bold; font-size:16px; margin-bottom:10px;">${item.price || '0.00'} د.ل</div>
                     <button style="background:#28a745; color:white; border:1px solid #218838; padding:8px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="openModal('${safeName}', '${safeCode}', '${safeLink}', '${safePrice}')">🛒 اطلب الان عبر واتساب</button>
                 </div>`;
             });
@@ -958,6 +987,18 @@
                     .modal-box { background:#fff; padding:20px; border-radius:12px; text-align:center; width:85%; max-width:320px; border:3px solid #D4AF37; }
                     select { width:100%; padding:8px; margin-bottom:15px; border-radius:8px; border:1px solid #D4AF37; font-weight:bold; text-align:center; color:#800000; }
                     button { width:100%; padding:10px; margin-bottom:10px; border-radius:8px; font-weight:bold; border:none; cursor:pointer; color:white; }
+                    
+                    /* دعم العمودين الاحترافي للموبايل */
+                    @media (max-width: 600px) {
+                        body { padding: 8px; }
+                        .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+                        .card { padding: 8px !important; border-radius: 8px !important; }
+                        .card img { height: 120px !important; margin-bottom: 5px !important; }
+                        .card h3 { font-size: 14px !important; margin: 0 0 5px 0 !important; }
+                        .card .price { font-size: 15px !important; margin-bottom: 5px !important; }
+                        .card button { font-size: 11px !important; padding: 6px !important; margin-bottom: 0 !important;}
+                        .card .code { font-size: 9px !important; padding: 2px 6px !important; margin-bottom: 5px !important; }
+                    }
                 </style>
             </head>
             <body>
