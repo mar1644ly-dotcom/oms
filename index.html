@@ -8,11 +8,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="منيو الفايدي">
 
+    <!-- مكتبات التصدير -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+    <!-- مكتبات Firebase السحابية -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -147,7 +149,7 @@
         <div class="header-title-section">
             <div class="faidy-logo-container">
                 <label class="faidy-logo-label">
-                    <img src="https://via.placeholder.com/120?text=الشعار" alt="شعار حلواني أبناء الفايدي" class="faidy-logo-img" id="faidyMainLogo">
+                    <img src="https://via.placeholder.com/120?text=الشعار" alt="شعار حلواني أبناء الفايدي" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
                     <input type="file" style="display:none" class="admin-only" onchange="uploadMainLogo(this)">
                 </label>
                 <div class="brand-right-title" onclick="toggleLoginBox()">حلواني أبناء الفايدي 1989</div>
@@ -156,7 +158,7 @@
         
         <div class="header-content-section">
             <div class="branches-image-wrapper">
-                <img id="main-header-branches-img" src="https://via.placeholder.com/150/800000/D4AF37?text=الفروع" alt="صورة الفروع المجمعة">
+                <img id="main-header-branches-img" src="https://via.placeholder.com/150/800000/D4AF37?text=الفروع" alt="صورة الفروع المجمعة" loading="lazy">
             </div>
             <div class="branches-list-wrapper" id="branchesContainer">
                 <div class="secret-login-container" id="secretLoginBox">
@@ -220,7 +222,7 @@
                 <button class="btn-toggle-select" onclick="toggleSelectAllItems()">⚙️ تحديد/إلغاء الكل</button>
                 
                 <button class="btn-import-links" onclick="document.getElementById('import-links-upload').click()">🔗 استيراد الروابط (إكسيل)</button>
-                <input type="file" id="import-links-upload" accept=".xlsx, .xls" style="display:none" onchange="processLinksExcel(this)">
+                <input type="file" id="import-links-upload" accept=".xlsx, .csv" style="display:none" onchange="processLinksExcel(this)">
                 
                 <button class="btn-drive-workflow" onclick="exportForGoogleDriveWorkflow()">📁 ملف إكسل مع الصور لقوقل درايف</button>
 
@@ -279,7 +281,7 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             loadHiddenCategoriesStorage(); 
-            initOfflineDBAndLoad(); // التحميل الفوري من الذاكرة المحلية كخطوة أولى
+            initOfflineDBAndLoad(); 
         });
 
         // =========================================================
@@ -319,7 +321,7 @@
                     allItemsGlobal = e.target.result;
                     queueRender();
                 }
-                loadCloudData(); // الاتصال بفايربيس بعد أن تفتح الشاشة فوراً
+                loadCloudData();
             };
         }
 
@@ -346,28 +348,24 @@
                 renderBranches();
             });
 
-            // تقنية القراءة المقطعية (تسحب التغييرات فقط ولا تحمل كل البيانات مرة أخرى)
             dbCloud.ref('items').on('child_added', (snapshot) => {
                 const item = snapshot.val();
                 const idx = allItemsGlobal.findIndex(i => i.id === item.id);
                 if(idx === -1) { allItemsGlobal.push(item); } else { allItemsGlobal[idx] = item; }
-                updateItemInDB(item);
-                queueRender();
+                updateItemInDB(item); queueRender();
             });
 
             dbCloud.ref('items').on('child_changed', (snapshot) => {
                 const item = snapshot.val();
                 const idx = allItemsGlobal.findIndex(i => i.id === item.id);
                 if(idx !== -1) { allItemsGlobal[idx] = item; } else { allItemsGlobal.push(item); }
-                updateItemInDB(item);
-                queueRender();
+                updateItemInDB(item); queueRender();
             });
 
             dbCloud.ref('items').on('child_removed', (snapshot) => {
                 const item = snapshot.val();
                 allItemsGlobal = allItemsGlobal.filter(i => i.id !== item.id);
-                deleteItemFromDB(item.id);
-                queueRender();
+                deleteItemFromDB(item.id); queueRender();
             });
         }
 
@@ -428,7 +426,6 @@
                 const name = (data.name||'').toLowerCase();
                 const code = (data.code||'').toLowerCase();
                 if(query && !(name.includes(query) || code.includes(query))) return false;
-                
                 if(cat !== 'all' && data.cat !== cat) return false;
                 
                 if (issue !== 'none') {
@@ -466,7 +463,7 @@
             container.appendChild(fragment);
             renderIndex = end;
             
-            if (renderIndex < filteredList.length) { setTimeout(processNextBatch, 30); } // التحميل الكسول المتبقي
+            if (renderIndex < filteredList.length) { setTimeout(processNextBatch, 30); }
         }
 
         function createItemCardDOM(data) {
@@ -543,7 +540,7 @@
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         let width = img.width; let height = img.height;
-                        const MAX_DIMENSION = 500; // تصغير الأبعاد لتقليل الحجم بشكل جبار
+                        const MAX_DIMENSION = 500; 
 
                         if (width > height) { if (width > MAX_DIMENSION) { height *= MAX_DIMENSION / width; width = MAX_DIMENSION; } } 
                         else { if (height > MAX_DIMENSION) { width *= MAX_DIMENSION / height; height = MAX_DIMENSION; } }
@@ -552,9 +549,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // ضغط الصورة إلى جودة 60% لتقليل حجم النص (Base64) بنسبة 90%
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                        
                         document.getElementById('img-' + id).src = compressedBase64;
                         updateField(id, 'img', compressedBase64);
                     };
@@ -663,7 +658,7 @@
         }
 
         // =========================================================
-        // دوال الزبون (واتساب والاتصال)
+        // دوال الزبون (واتساب والاتصال) - تم تصحيح الهروب النصي هنا 
         // =========================================================
         function updateCustomerBranchesModal() {
             let selectEl = document.getElementById("branch-select"); selectEl.innerHTML = "";
@@ -677,8 +672,9 @@
         
         function sendWA() { 
             const p = document.getElementById("branch-select").value; 
-            let textMsg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + window.contactItemName + "*\\nرقم الصنف: " + window.contactItemCode + " | السعر: " + window.contactItemPrice + " د.ل\\n"; 
-            if(window.contactItemLink) { textMsg += "-----------------------------------\\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\\n" + window.contactItemLink; } 
+            // تم التعديل إلى \n لضمان النزول لسطر جديد بشكل صحيح وعدم كسر الرابط
+            let textMsg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + window.contactItemName + "*\nرقم الصنف: " + window.contactItemCode + " | السعر: " + window.contactItemPrice + " د.ل\n"; 
+            if(window.contactItemLink) { textMsg += "-----------------------------------\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\n" + window.contactItemLink; } 
             window.open("https://wa.me/" + p + "?text=" + encodeURIComponent(textMsg), "_blank"); closeContactModal(); 
         } 
         function makeCall() { const p = document.getElementById("branch-select").value; window.location.href = "tel:+" + p; closeContactModal(); }
@@ -735,8 +731,8 @@
             let currentLink = btn.getAttribute('data-link'); let newLink = prompt("الرجاء إدخال رابط قوقل درايف:", currentLink);
             if (newLink !== null) {
                 let cleanLink = newLink.trim();
-                const fileIdRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|id=)([a-zA-Z0-9_-]{25,})/; const match = cleanLink.match(fileIdRegex);
-                if (match && match[1]) { cleanLink = `https://drive.google.com/uc?id=${match[1]}`; }
+                const idMatch = cleanLink.match(/[-\w]{25,}/);
+                if (idMatch && idMatch[0]) { cleanLink = `https://drive.google.com/uc?id=${idMatch[0]}`; }
                 updateField(id, 'driveLink', cleanLink);
             }
         }
@@ -766,11 +762,10 @@
         // =========================================================
         function exportToPDF() { window.print(); }
 
-        // الدالة المخصصة لتصدير إكسل والصور لقوقل درايف بالتسلسل المطلوب
         async function exportForGoogleDriveWorkflow() {
             const exportItems = allItemsGlobal.filter(i => !i.isPlaceholder && i.img && i.img.startsWith('data:image'));
             if (exportItems.length === 0) { alert("⚠️ لا توجد أصناف تحتوي على صور لتصديرها."); return; }
-            alert("جاري تجهيز الإكسل والصور المتسلسلة...");
+            alert("جاري تجهيز الإكسل والصور المتسلسلة لقوقل درايف...");
             const zip = new JSZip();
             const imageFolder = zip.folder("صور_قوقل_درايف");
             
@@ -782,21 +777,28 @@
                 const paddedNum = String(seqNum).padStart(3, '0');
                 const imgName = `${paddedNum}.jpg`;
                 
-                excelData.push([ item.code || '000', item.name, parseFloat(item.price) || 0.00, seqNum, item.cat || 'عام', item.driveLink || '' ]);
+                excelData.push([ 
+                    item.code || '000', 
+                    item.name || 'بدون اسم', 
+                    parseFloat(item.price) || 0.00, 
+                    seqNum, 
+                    item.cat || 'عام', 
+                    item.driveLink || '' 
+                ]);
                 const base64Data = item.img.split(',')[1];
                 imageFolder.file(imgName, base64Data, {base64: true});
             });
             
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "البيانات التسلسلية"); const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             zip.file("Exported_Faidy_Data.xlsx", excelBuffer);
-            zip.generateAsync({type: "blob"}).then(content => { saveAs(content, "تجهيز_قوقل_درايف.zip"); alert("✅ تم بنجاح! الملف المضغوط يحتوي على الإكسل وصور مرقمة بالتسلسل."); });
+            zip.generateAsync({type: "blob"}).then(content => { saveAs(content, "تجهيز_قوقل_درايف.zip"); alert("✅ تم بنجاح! الملف المضغوط يحتوي على الإكسل وصور مرقمة بالتسلسل 100%."); });
         }
 
-        // استيراد الروابط المتوافق مع الإكسل الجديد (بناءً على الكود والرابط)
+        // الدالة المعدلة جذريا: الاستيراد بدون انتظار الإنترنت (Offline-First)
         function processLinksExcel(input) {
             const file = input.files[0];
             if (!file) return;
-            alert("جاري تحليل ملف الإكسيل ومزامنة الروابط سحابياً...");
+            alert("جاري تحليل ملف الإكسيل ومزامنة الروابط...");
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -811,20 +813,32 @@
                     json.forEach(row => {
                         let rowCode = row[codeKey]; let rowLink = row[linkKey];
                         if (rowCode !== undefined && rowCode !== "" && rowLink && rowLink !== "") {
-                            let cleanRowCode = String(rowCode).trim(); let directLink = String(rowLink).trim();
-                            if (directLink.includes("http") || directLink.includes("drive.google.com")) {
-                                let itemToUpdate = allItemsGlobal.find(i => String(i.code).trim() === cleanRowCode || Number(String(i.code).trim()) === Number(cleanRowCode));
-                                if (itemToUpdate) {
-                                    const match = directLink.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|id=)([a-zA-Z0-9_-]{25,})/);
-                                    if (match && match[1]) directLink = `https://drive.google.com/uc?id=${match[1]}`;
-                                    updates[itemToUpdate.id + '/driveLink'] = directLink;
+                            let cleanRowCode = String(rowCode).trim(); 
+                            let directLink = String(rowLink).trim();
+                            
+                            const idMatch = directLink.match(/[-\w]{25,}/);
+                            if (idMatch && idMatch[0]) {
+                                directLink = `https://drive.google.com/uc?id=${idMatch[0]}`;
+                                
+                                let itemIndex = allItemsGlobal.findIndex(i => String(i.code).trim() === cleanRowCode || Number(String(i.code).trim()) === Number(cleanRowCode));
+                                if (itemIndex > -1) {
+                                    let item = allItemsGlobal[itemIndex];
+                                    item.driveLink = directLink; 
+                                    updateItemInDB(item); 
+                                    updates[item.id + '/driveLink'] = directLink; 
                                     updatedCount++;
                                 }
                             }
                         }
                     });
                     
-                    if (Object.keys(updates).length > 0) { dbCloud.ref('items').update(updates).then(() => { alert(`✅ اكتملت العملية! تم استيراد وتحديث الروابط لـ (${updatedCount}) صنف.`); }); } else { alert("لم يتم العثور على أي تحديثات صالحة."); }
+                    if (updatedCount > 0) { 
+                        queueRender(); 
+                        dbCloud.ref('items').update(updates).catch(e => console.log("سيتم التحديث السحابي تلقائياً عند توفر الإنترنت."));
+                        alert(`✅ اكتملت العملية! تم استيراد وتحديث الروابط لتكون مباشرة لـ (${updatedCount}) صنف.`); 
+                    } else { 
+                        alert("لم يتم العثور على أي تحديثات صالحة أو روابط صحيحة."); 
+                    }
                     input.value = '';
                 } catch (err) { alert("❌ حدث خطأ: " + err.message); input.value = ''; }
             };
@@ -899,7 +913,7 @@
         }
 
         // =========================================================
-        // تصدير المنيو المستقل للزبائن (HTML Export) - مدعوم بالـ Lazy Loading
+        // تصدير المنيو المستقل للزبائن (HTML Export) 
         // =========================================================
         function exportStandaloneMenu() {
             if(allItemsGlobal.length === 0) { alert("⚠️ لا توجد أصناف لتصديرها."); return; }
