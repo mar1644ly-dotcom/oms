@@ -8,17 +8,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="منيو الفايدي">
 
-    <!-- مكتبات التصدير -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- مكتبات Firebase السحابية -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <style>
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background-color: #f4f4f4; padding: 5px 15px; margin: 0; scroll-behavior: smooth; }
         
@@ -84,6 +82,7 @@
         .btn-export-json { background: #27ae60; border: 1px solid #fff; font-weight: 900; }
         .btn-import-json { background: #9b59b6; border: 1px solid #fff; font-weight: 900; }
         .btn-drive-workflow { background: #8e44ad; border: 1px solid #fff; font-weight: 900; }
+        .btn-filtered-excel { background: #20c997; border: 1px solid #000; font-weight: 900; color: #000; }
 
         #main-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding-bottom: 30px; width: 100%; }
         .item-card { background: white; width: 100%; max-width: 340px; padding: 12px; border-radius: 12px; border-bottom: 4px solid #800000; position: relative; box-shadow: 0 3px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: auto; margin-top: 12px; box-sizing: border-box; break-inside: avoid; transition: background-color 0.3s; }
@@ -120,9 +119,6 @@
         .btn-call { background: #007bff; border: 1px solid #0056b3; }
         .btn-close-modal { background: #dc3545; color: white; padding: 5px 15px; border: none; border-radius: 5px; cursor: pointer; font-family: "Cairo"; font-size:11px; margin-top: 5px; font-weight:bold; }
 
-        /* ========================================================
-           تعديلات العرض على شاشات الموبايل (نظام العمودين الاحترافي)
-           ======================================================== */
         @media (max-width: 600px) { 
             .header-content-section { flex-wrap: wrap; } 
             .branches-image-wrapper { flex: 0 0 60px; height: 60px; } 
@@ -132,10 +128,7 @@
             .faidy-logo-img { width: 26px; height: 26px; border-width: 1px; } 
             .search-box { width: 50%; } 
             
-            /* تحويل الحاوية الرئيسية إلى شبكة بعمودين */
             #main-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; padding: 5px !important; }
-            
-            /* تعديل الكروت لتناسب الحجم الصغير */
             .item-card { width: 100% !important; max-width: none !important; margin-top: 6px !important; padding: 8px !important; border-radius: 8px !important; }
             .header-row { flex-direction: column !important; align-items: center !important; gap: 5px !important; padding-top: 5px !important; border-bottom: 1px dashed #D4AF37 !important;}
             .name-display { font-size: 13px !important; text-align: center !important; width: 100%; }
@@ -165,7 +158,7 @@
 </head>
 <body class="admin-locked">
 
-    <div id="contact-modal" class="customer-only">
+<div id="contact-modal" class="customer-only">
         <div class="modal-box">
             <div class="modal-title">تواصل معنا للطلب</div>
             <div class="modal-item-name" id="modal-item-desc"></div>
@@ -200,7 +193,7 @@
         </div>
     </div>
 
-    <div class="no-print">
+<div class="no-print">
         <div id="data-audit-alert" class="admin-only" onclick="triggerIncompleteFilter()">
             ⚠️ تنبيه: يوجد لديك (<span id="audit-count">0</span>) أصناف ببيانات غير مكتملة.
         </div>
@@ -251,18 +244,19 @@
             
             <div class="admin-actions-row">
                 <button class="btn-toggle-select" onclick="toggleSelectAllItems()">⚙️ تحديد/إلغاء الكل</button>
+                <button class="btn-admin" onclick="addNewItemWithCategory()">➕ صنف جديد</button>
                 
                 <button class="btn-import-links" onclick="document.getElementById('import-links-upload').click()">🔗 استيراد الروابط (إكسيل)</button>
                 <input type="file" id="import-links-upload" accept=".xlsx, .csv" style="display:none" onchange="processLinksExcel(this)">
                 
-                <button class="btn-drive-workflow" onclick="exportForGoogleDriveWorkflow()">📁 ملف إكسل مع الصور لقوقل درايف</button>
+                <button class="btn-drive-workflow" onclick="exportForGoogleDriveWorkflow()">📁 ملف إكسل + صور (درايف)</button>
+                
+                <button class="btn-filtered-excel" onclick="exportFilteredExcel()">📊 إكسل مخصص (للمعروض فقط)</button>
 
                 <button class="btn-export-json" onclick="exportLocalToJSON()">💾 حفظ عملي (JSON)</button>
-                <button class="btn-import-json" onclick="document.getElementById('import-json-upload').click()">📥 حقن نسخة احتياطية (JSON)</button>
+                <button class="btn-import-json" onclick="document.getElementById('import-json-upload').click()">📥 حقن نسخة (JSON)</button>
                 <input type="file" id="import-json-upload" accept=".json" style="display:none" onchange="importLocalJSON(this)">
 
-                <button class="btn-admin" onclick="addNewItemWithCategory()">➕ صنف جديد</button>
-                
                 <button class="btn-zip" onclick="exportAllImagesFlat()" style="background:#d35400;">📦 كل الصور</button>
                 <button class="btn-zip" onclick="exportAllImages()" style="background:#ff9800;">📂 صور مقسمة</button>
                 <button class="btn-speedly" onclick="exportExcelWithLocalImages()" style="background:#157347; border: 1px solid #D4AF37;">📊 إكسل متكامل</button>
@@ -277,9 +271,10 @@
     <div id="main-container"></div>
 
     <script>
-        // =========================================================
-        // تهيئة Firebase Cloud Realtime Database 
-        // =========================================================
+// =========================================================
+// الفقرة 5: تهيئة Firebase السحابية والمتغيرات العامة (JS Variables)
+// الشرح: ربط المنظومة بقاعدة بيانات Firebase، وتعريف المتغيرات الأساسية للمصفوفات والفلاتر.
+// =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBr-XVqipP8NBOakKQgYR4gfLyYaFDwqD8",
             authDomain: "faidy-web-app.firebaseapp.com",
@@ -315,9 +310,10 @@
             initOfflineDBAndLoad(); 
         });
 
-        // =========================================================
-        // نظام الذاكرة العميقة (Offline-First) لسرعة الصاروخ
-        // =========================================================
+// =========================================================
+// الفقرة 6: نظام الذاكرة العميقة (Offline-First) والتزامن السحابي
+// الشرح: تسريع تحميل الصفحة باستخدام IndexedDB، وتزامن البيانات والتعديلات المباشرة مع Firebase.
+// =========================================================
         function initOfflineDBAndLoad() {
             const request = indexedDB.open("FaidyOfflineDB", 1);
             request.onupgradeneeded = function(event) {
@@ -360,9 +356,6 @@
         function deleteItemFromDB(id) { if(dbOffline) { const tx = dbOffline.transaction('items', 'readwrite'); tx.objectStore('items').delete(id); } }
         function saveSetting(key, value) { if(dbOffline) { const tx = dbOffline.transaction('settings', 'readwrite'); tx.objectStore('settings').put({ id: key, value: value }); } }
 
-        // =========================================================
-        // التزامن الذكي والجزئي مع السحابة (Smart Cloud Sync)
-        // =========================================================
         function loadCloudData() {
             dbCloud.ref('settings').on('value', (snapshot) => {
                 const settings = snapshot.val() || {};
@@ -400,9 +393,10 @@
             });
         }
 
-        // =========================================================
-        // تقنية التجميع وتخفيف الضغط عن المتصفح (Chunked Rendering)
-        // =========================================================
+// =========================================================
+// الفقرة 7: تقنية التجميع وتحديث واجهة الأصناف (Chunked Rendering & Filters)
+// الشرح: تحميل الكروت على دفعات لعدم تجميد المتصفح، ودوال فلاتر الأقسام والجودة والبحث.
+// =========================================================
         function queueRender() {
             if(renderTimeout) clearTimeout(renderTimeout);
             renderTimeout = setTimeout(() => { renderItemsUIBatched(); }, 150);
@@ -410,7 +404,7 @@
 
         let renderIndex = 0;
         const BATCH_SIZE = 15;
-        let filteredList = [];
+        let filteredList = []; // مصفوفة تحمل الأصناف المعروضة حالياً على الشاشة فقط
 
         function updateCategoriesUI() {
             categories = [...new Set(allItemsGlobal.map(i => i.cat))].filter(Boolean);
@@ -449,6 +443,7 @@
             const issue = window.currentIssueFilter || 'none';
             const isAdmin = !document.body.classList.contains('admin-locked');
             
+            // تعبئة مصفوفة filteredList بالأصناف المطابقة للفلتر أو البحث
             filteredList = allItemsGlobal.filter(data => {
                 if(data.isPlaceholder) return false;
                 if(!isAdmin && hiddenCategories.includes(data.cat)) return false;
@@ -497,6 +492,10 @@
             if (renderIndex < filteredList.length) { setTimeout(processNextBatch, 30); }
         }
 
+// =========================================================
+// الفقرة 8: ضغط الصور ورسم كارت الصنف (Image Compression & DOM Card)
+// الشرح: بناء شكل الصنف في الواجهة وإضافة أوامر تصغير وتخفيف جودة الصور المرفوعة.
+// =========================================================
         function createItemCardDOM(data) {
             const card = document.createElement('div');
             card.className = 'item-card ' + (data.featured ? 'is-featured' : '');
@@ -559,9 +558,6 @@
             return card;
         }
 
-        // =========================================================
-        // خوارزمية الضغط التلقائي للصور (Auto-Compression)
-        // =========================================================
         function updateImg(id, input) { 
             if (input.files && input.files[0]) { 
                 const file = input.files[0];
@@ -590,9 +586,10 @@
             } 
         }
 
-        // =========================================================
-        // التصدير والاستيراد (JSON Hybrid)
-        // =========================================================
+// =========================================================
+// الفقرة 9: التصدير والاستيراد لحفظ العمل (JSON Workflow)
+// الشرح: استخراج جميع البيانات والصور كملف JSON كنسخة احتياطية، وحقن البيانات منها محلياً وسحابياً.
+// =========================================================
         function exportLocalToJSON() {
             if(allItemsGlobal.length === 0) { alert("⚠️ لا توجد بيانات لتصديرها."); return; }
             let exportData = { items: {}, settings: { branches: {}, logo: document.getElementById("faidyMainLogo").src.includes("data:image") ? document.getElementById("faidyMainLogo").src : "", branchImage: document.getElementById("main-header-branches-img").src.includes("data:image") ? document.getElementById("main-header-branches-img").src : "" } };
@@ -647,9 +644,10 @@
             reader.readAsText(file);
         }
 
-        // =========================================================
-        // دوال الإعدادات والشعارات والفروع (حفظ سحابي)
-        // =========================================================
+// =========================================================
+// الفقرة 10: دوال الإعدادات والصلاحيات والفروع (Settings & Login)
+// الشرح: رفع الصور الخاصة بالواجهة، وإدارة الفروع بدون كلمة "فرع" إجبارية.
+// =========================================================
         function uploadMainLogo(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { dbCloud.ref('settings/logo').set(e.target.result); }; reader.readAsDataURL(input.files[0]); } }
         function uploadBranchesUnifiedImage(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { dbCloud.ref('settings/branchImage').set(e.target.result); }; reader.readAsDataURL(input.files[0]); } }
         
@@ -659,7 +657,7 @@
             container.innerHTML = loginBoxHTML; 
             window.globalBranches.forEach(b => { 
                 const card = document.createElement('div'); card.className = 'branch-card'; 
-                card.innerHTML = `<div class="branch-info-box"> <span style="color:#800000; font-weight:900; font-size:12px;">فرع ${b.name}</span> <span style="color:#333; font-weight:700; font-size:11px; direction:ltr;">${b.phone}</span> </div> <div style="display:flex; align-items:center; gap:5px;"> <a href="tel:${b.phone.replace(/[^\d]/g, '')}" class="booking-badge customer-only">📞 اتصال</a> <div class="b-edit-btn admin-only" onclick="editBranch(${b.id})" title="تعديل">✏️</div> <div class="b-del-x admin-only" onclick="deleteBranch(${b.id})" title="حذف">×</div> </div>`; 
+                card.innerHTML = `<div class="branch-info-box"> <span style="color:#800000; font-weight:900; font-size:12px;">${b.name}</span> <span style="color:#333; font-weight:700; font-size:11px; direction:ltr;">${b.phone}</span> </div> <div style="display:flex; align-items:center; gap:5px;"> <a href="tel:${b.phone.replace(/[^\d]/g, '')}" class="booking-badge customer-only">📞 اتصال</a> <div class="b-edit-btn admin-only" onclick="editBranch(${b.id})" title="تعديل">✏️</div> <div class="b-del-x admin-only" onclick="deleteBranch(${b.id})" title="حذف">×</div> </div>`; 
                 container.appendChild(card); 
             }); 
             updateCustomerBranchesModal();
@@ -688,13 +686,17 @@
             document.getElementById('adminPassword').value = "";
         }
 
-        // =========================================================
-        // دوال الزبون (واتساب والاتصال)
-        // =========================================================
+// =========================================================
+// الفقرة 11: دوال الاتصال والواتساب للزبائن (Customer Actions)
+// الشرح: إدارة نافذة الطلب المباشر وتجهيز رسالة الواتساب المتكاملة.
+// =========================================================
         function updateCustomerBranchesModal() {
             let selectEl = document.getElementById("branch-select"); selectEl.innerHTML = "";
             if (window.globalBranches.length > 0) { 
-                window.globalBranches.forEach(b => { let p = b.phone.replace(/[^\d+]/g, ''); if (p.startsWith('0')) p = '218' + p.substring(1); selectEl.innerHTML += '<option value="' + p + '">فرع ' + b.name + ' (' + b.phone + ')</option>'; }); 
+                window.globalBranches.forEach(b => { 
+                    let p = b.phone.replace(/[^\d+]/g, ''); if (p.startsWith('0')) p = '218' + p.substring(1); 
+                    selectEl.innerHTML += '<option value="' + p + '">' + b.name + ' (' + b.phone + ')</option>'; 
+                }); 
             } else { selectEl.innerHTML = '<option value="218900000000">الفرع الرئيسي</option>'; }
         }
 
@@ -709,15 +711,25 @@
         } 
         function makeCall() { const p = document.getElementById("branch-select").value; window.location.href = "tel:+" + p; closeContactModal(); }
 
-        // =========================================================
-        // واجهة الأصناف والتدقيق
-        // =========================================================
+// =========================================================
+// الفقرة 12: دوال تعديل وإضافة وحذف الأصناف (Item Operations)
+// الشرح: تنفيذ الأوامر على الأصناف وإرسال التحديثات للسحابة (الاسم، السعر، الصورة الخ).
+// =========================================================
         function loadHiddenCategoriesStorage() { const saved = localStorage.getItem("faidy_hidden_categories"); if (saved) { hiddenCategories = JSON.parse(saved); } }
         function toggleCategoryVisibility(catName, event) { event.stopPropagation(); const index = hiddenCategories.indexOf(catName); if (index > -1) { hiddenCategories.splice(index, 1); } else { hiddenCategories.push(catName); } localStorage.setItem("faidy_hidden_categories", JSON.stringify(hiddenCategories)); queueRender(); }
 
         function updateField(id, field, value) { dbCloud.ref('items/' + id).update({ [field]: value }).catch(()=>{}); }
         function updateItemCategoryInline(id, newCat) { dbCloud.ref('items/' + id).update({ cat: newCat }).catch(()=>{}); }
-        function deleteItem(id) { if (confirm("حذف الصنف نهائياً؟")) { dbCloud.ref('items/' + id).remove().catch(()=>{}); } }
+        function deleteItem(id) { 
+            if (confirm("حذف الصنف نهائياً؟")) { 
+                allItemsGlobal = allItemsGlobal.filter(i => i.id !== id);
+                deleteItemFromDB(id);
+                queueRender();
+                dbCloud.ref('items/' + id).remove().catch(()=>{
+                    console.log("تم الحذف محلياً، وسيتم المزامنة مع السحابة عند توفر الإنترنت.");
+                }); 
+            } 
+        }
         
         function addNewCategory() { 
             const v = document.getElementById('newCatInput').value.trim(); 
@@ -767,6 +779,10 @@
             }
         }
 
+// =========================================================
+// الفقرة 13: مدقق جودة البيانات (Data Audit Tool)
+// الشرح: حصر وفلترة الأصناف التي تحتوي على نواقص (سعر، صورة، اسم، رابط).
+// =========================================================
         function runDataAudit() {
             let incompleteCount = 0;
             allItemsGlobal.forEach(i => {
@@ -787,10 +803,48 @@
             if (btn && !btn.classList.contains('active')) { filterByIssue('all-issues', btn); window.scrollTo({ top: document.getElementById('main-container').offsetTop - 50, behavior: 'smooth' }); }
         }
 
-        // =========================================================
-        // التصدير السحابي المباشر والأزرار الجديدة
-        // =========================================================
+// =========================================================
+// الفقرة 14: التصدير الشامل الذكي (Excel, Word, Images, HTML Menu)
+// الشرح: استخراج وتجهيز الملفات بأشكال مختلفة بما في ذلك التصدير المخصص للمشهد الحالي.
+// =========================================================
         function exportToPDF() { window.print(); }
+
+        // الدالة الجديدة للتصدير المخصص (المعروض على الشاشة فقط)
+        function exportFilteredExcel() {
+            if (filteredList.length === 0) {
+                alert("⚠️ لا توجد أصناف معروضة حالياً لتصديرها.");
+                return;
+            }
+            
+            // تهيئة الأعمدة المطلوبة
+            let excelData = [
+                ["اسم الصنف", "الكود (رقم الصنف)", "السعر"]
+            ];
+            
+            // حلقة تدور على العناصر المعروضة في الشاشة حالياً (الموجودة في filteredList)
+            filteredList.forEach(item => {
+                excelData.push([
+                    item.name || 'بدون اسم',
+                    item.code || '000',
+                    parseFloat(item.price) || 0.00
+                ]);
+            });
+            
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            
+            // تنسيق عرض الأعمدة
+            ws['!cols'] = [{wch:30}, {wch:15}, {wch:10}];
+            
+            // تسمية الملف بناءً على القسم أو الفلتر الحالي
+            let currentCatName = window.currentFilter === 'all' ? 'الكل' : window.currentFilter;
+            let fileName = `أصناف_${currentCatName}.xlsx`;
+            
+            XLSX.utils.book_append_sheet(wb, ws, "الأصناف المعروضة");
+            XLSX.writeFile(wb, fileName);
+            
+            alert(`✅ تم تصدير الأصناف المعروضة لـ (${currentCatName}) بنجاح!`);
+        }
 
         async function exportForGoogleDriveWorkflow() {
             const exportItems = allItemsGlobal.filter(i => !i.isPlaceholder && i.img && i.img.startsWith('data:image'));
@@ -941,9 +995,6 @@
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "سبيدلي"); XLSX.writeFile(wb, "سبيدلي.xlsx"); 
         }
 
-        // =========================================================
-        // تصدير المنيو المستقل للزبائن (HTML Export) - مدعوم بالعمودين للموبايل
-        // =========================================================
         function exportStandaloneMenu() {
             if(allItemsGlobal.length === 0) { alert("⚠️ لا توجد أصناف لتصديرها."); return; }
             alert("جاري تجهيز المنيو المستقل للزبائن...");
@@ -951,7 +1002,7 @@
             let branchesSelectHTML = '';
             window.globalBranches.forEach(b => { 
                 let p = b.phone.replace(/[^\d+]/g, ''); if (p.startsWith('0')) p = '218' + p.substring(1); 
-                branchesSelectHTML += `<option value="${p}">فرع ${b.name} (${b.phone})</option>`; 
+                branchesSelectHTML += `<option value="${p}">${b.name} (${b.phone})</option>`; 
             });
 
             let cardsHTML = '';
@@ -988,7 +1039,6 @@
                     select { width:100%; padding:8px; margin-bottom:15px; border-radius:8px; border:1px solid #D4AF37; font-weight:bold; text-align:center; color:#800000; }
                     button { width:100%; padding:10px; margin-bottom:10px; border-radius:8px; font-weight:bold; border:none; cursor:pointer; color:white; }
                     
-                    /* دعم العمودين الاحترافي للموبايل */
                     @media (max-width: 600px) {
                         body { padding: 8px; }
                         .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
