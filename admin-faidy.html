@@ -935,12 +935,12 @@
         <h2>حلواني أبناء الفايدي 1989</h2>
         <input type="text" id="searchInput" class="search-box" placeholder="ابحث بالاسم أو الرقم..." oninput="filterItems()">
         <div class="filter-container" id="filterContainer">
-            \${filterButtonsHTML}
+            ${filterButtonsHTML}
         </div>
     </div>
 
     <div class="grid" id="itemsGrid">
-        \${cardsHTML}
+        ${cardsHTML}
     </div>
 
     <div id="modal">
@@ -948,7 +948,7 @@
             <h3 style="color:#800000; margin-top:0;">تأكيد الطلب</h3>
             <p id="modalDesc" style="font-size:13px; font-weight:bold; color:#555;"></p>
             <select id="branchSelect">
-                \${branchesSelectHTML}
+                ${branchesSelectHTML}
             </select>
             <button class="btn-wa" onclick="sendWA()">💬 إرسال عبر واتساب</button>
             <button class="btn-close" onclick="closeModal()">إغلاق</button>
@@ -993,8 +993,8 @@
 
         function sendWA() {
             const phone = document.getElementById('branchSelect').value;
-            let msg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + cName + "*\\\\nرقم الصنف: " + cCode + " | السعر: " + cPrice + " د.ل\\\\n";
-            if(cLink) msg += "-----------------------------------\\\\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\\\\n" + cLink;
+            let msg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + cName + "*\\nرقم الصنف: " + cCode + " | السعر: " + cPrice + " د.ل\\n";
+            if(cLink) msg += "-----------------------------------\\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\\n" + cLink;
             window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
             closeModal();
         }
@@ -1009,7 +1009,6 @@
             link.click();
             alert("✅ تم التصدير بنجاح!");
         }
-
         function compressImageAsync(base64Str, maxWidth = 350, quality = 0.4) { 
             return new Promise((resolve) => { 
                 if (!base64Str || !base64Str.startsWith('data:image')) { resolve(base64Str); return; } 
