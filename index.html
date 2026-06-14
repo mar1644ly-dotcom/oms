@@ -10,7 +10,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -271,10 +271,6 @@
     <div id="main-container"></div>
 
     <script>
-// =========================================================
-// الفقرة 5: تهيئة Firebase السحابية والمتغيرات العامة (JS Variables)
-// الشرح: ربط المنظومة بقاعدة بيانات Firebase، وتعريف المتغيرات الأساسية للمصفوفات والفلاتر.
-// =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBr-XVqipP8NBOakKQgYR4gfLyYaFDwqD8",
             authDomain: "faidy-web-app.firebaseapp.com",
@@ -310,10 +306,6 @@
             initOfflineDBAndLoad(); 
         });
 
-// =========================================================
-// الفقرة 6: نظام الذاكرة العميقة (Offline-First) والتزامن السحابي
-// الشرح: تسريع تحميل الصفحة باستخدام IndexedDB، وتزامن البيانات والتعديلات المباشرة مع Firebase.
-// =========================================================
         function initOfflineDBAndLoad() {
             const request = indexedDB.open("FaidyOfflineDB", 1);
             request.onupgradeneeded = function(event) {
@@ -393,10 +385,6 @@
             });
         }
 
-// =========================================================
-// الفقرة 7: تقنية التجميع وتحديث واجهة الأصناف (Chunked Rendering & Filters)
-// الشرح: تحميل الكروت على دفعات لعدم تجميد المتصفح، ودوال فلاتر الأقسام والجودة والبحث.
-// =========================================================
         function queueRender() {
             if(renderTimeout) clearTimeout(renderTimeout);
             renderTimeout = setTimeout(() => { renderItemsUIBatched(); }, 150);
@@ -404,7 +392,7 @@
 
         let renderIndex = 0;
         const BATCH_SIZE = 15;
-        let filteredList = []; // مصفوفة تحمل الأصناف المعروضة حالياً على الشاشة فقط
+        let filteredList = [];
 
         function updateCategoriesUI() {
             categories = [...new Set(allItemsGlobal.map(i => i.cat))].filter(Boolean);
@@ -443,7 +431,6 @@
             const issue = window.currentIssueFilter || 'none';
             const isAdmin = !document.body.classList.contains('admin-locked');
             
-            // تعبئة مصفوفة filteredList بالأصناف المطابقة للفلتر أو البحث
             filteredList = allItemsGlobal.filter(data => {
                 if(data.isPlaceholder) return false;
                 if(!isAdmin && hiddenCategories.includes(data.cat)) return false;
@@ -471,8 +458,15 @@
                 return true;
             }).sort((a,b) => a.id - b.id);
             
+            // التعديل الأول: استبعاد الأصناف التي ليس عليها علامة (تصدير/صح) من العداد
             const tc = document.getElementById('total-count');
-            if(tc) tc.innerText = filteredList.length;
+            if(tc) {
+                let activeCount = 0;
+                filteredList.forEach(item => {
+                    if (item.selectedForMenu !== false) activeCount++;
+                });
+                tc.innerText = activeCount;
+            }
             
             renderIndex = 0;
             processNextBatch();
@@ -492,10 +486,6 @@
             if (renderIndex < filteredList.length) { setTimeout(processNextBatch, 30); }
         }
 
-// =========================================================
-// الفقرة 8: ضغط الصور ورسم كارت الصنف (Image Compression & DOM Card)
-// الشرح: بناء شكل الصنف في الواجهة وإضافة أوامر تصغير وتخفيف جودة الصور المرفوعة.
-// =========================================================
         function createItemCardDOM(data) {
             const card = document.createElement('div');
             card.className = 'item-card ' + (data.featured ? 'is-featured' : '');
@@ -586,10 +576,6 @@
             } 
         }
 
-// =========================================================
-// الفقرة 9: التصدير والاستيراد لحفظ العمل (JSON Workflow)
-// الشرح: استخراج جميع البيانات والصور كملف JSON كنسخة احتياطية، وحقن البيانات منها محلياً وسحابياً.
-// =========================================================
         function exportLocalToJSON() {
             if(allItemsGlobal.length === 0) { alert("⚠️ لا توجد بيانات لتصديرها."); return; }
             let exportData = { items: {}, settings: { branches: {}, logo: document.getElementById("faidyMainLogo").src.includes("data:image") ? document.getElementById("faidyMainLogo").src : "", branchImage: document.getElementById("main-header-branches-img").src.includes("data:image") ? document.getElementById("main-header-branches-img").src : "" } };
@@ -644,10 +630,6 @@
             reader.readAsText(file);
         }
 
-// =========================================================
-// الفقرة 10: دوال الإعدادات والصلاحيات والفروع (Settings & Login)
-// الشرح: رفع الصور الخاصة بالواجهة، وإدارة الفروع بدون كلمة "فرع" إجبارية.
-// =========================================================
         function uploadMainLogo(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { dbCloud.ref('settings/logo').set(e.target.result); }; reader.readAsDataURL(input.files[0]); } }
         function uploadBranchesUnifiedImage(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { dbCloud.ref('settings/branchImage').set(e.target.result); }; reader.readAsDataURL(input.files[0]); } }
         
@@ -686,10 +668,6 @@
             document.getElementById('adminPassword').value = "";
         }
 
-// =========================================================
-// الفقرة 11: دوال الاتصال والواتساب للزبائن (Customer Actions)
-// الشرح: إدارة نافذة الطلب المباشر وتجهيز رسالة الواتساب المتكاملة.
-// =========================================================
         function updateCustomerBranchesModal() {
             let selectEl = document.getElementById("branch-select"); selectEl.innerHTML = "";
             if (window.globalBranches.length > 0) { 
@@ -711,10 +689,6 @@
         } 
         function makeCall() { const p = document.getElementById("branch-select").value; window.location.href = "tel:+" + p; closeContactModal(); }
 
-// =========================================================
-// الفقرة 12: دوال تعديل وإضافة وحذف الأصناف (Item Operations)
-// الشرح: تنفيذ الأوامر على الأصناف وإرسال التحديثات للسحابة (الاسم، السعر، الصورة الخ).
-// =========================================================
         function loadHiddenCategoriesStorage() { const saved = localStorage.getItem("faidy_hidden_categories"); if (saved) { hiddenCategories = JSON.parse(saved); } }
         function toggleCategoryVisibility(catName, event) { event.stopPropagation(); const index = hiddenCategories.indexOf(catName); if (index > -1) { hiddenCategories.splice(index, 1); } else { hiddenCategories.push(catName); } localStorage.setItem("faidy_hidden_categories", JSON.stringify(hiddenCategories)); queueRender(); }
 
@@ -779,10 +753,6 @@
             }
         }
 
-// =========================================================
-// الفقرة 13: مدقق جودة البيانات (Data Audit Tool)
-// الشرح: حصر وفلترة الأصناف التي تحتوي على نواقص (سعر، صورة، اسم، رابط).
-// =========================================================
         function runDataAudit() {
             let incompleteCount = 0;
             allItemsGlobal.forEach(i => {
@@ -803,26 +773,25 @@
             if (btn && !btn.classList.contains('active')) { filterByIssue('all-issues', btn); window.scrollTo({ top: document.getElementById('main-container').offsetTop - 50, behavior: 'smooth' }); }
         }
 
-// =========================================================
-// الفقرة 14: التصدير الشامل الذكي (Excel, Word, Images, HTML Menu)
-// الشرح: استخراج وتجهيز الملفات بأشكال مختلفة بما في ذلك التصدير المخصص للمشهد الحالي.
-// =========================================================
         function exportToPDF() { window.print(); }
 
-        // الدالة الجديدة للتصدير المخصص (المعروض على الشاشة فقط)
+        // ==========================================
+        // التعديل الثاني: التصدير المخصص يستبعد الأصناف غير المحددة ويطبع بتنسيق احترافي
+        // ==========================================
         function exportFilteredExcel() {
-            if (filteredList.length === 0) {
-                alert("⚠️ لا توجد أصناف معروضة حالياً لتصديرها.");
+            // تصفية العناصر المعروضة حاليا وأخذ التي عليها علامة تصدير فقط
+            let itemsToExport = filteredList.filter(item => item.selectedForMenu !== false);
+
+            if (itemsToExport.length === 0) {
+                alert("⚠️ لا توجد أصناف محددة (عليها علامة تصدير) ضمن المعروض حالياً لتصديرها.");
                 return;
             }
             
-            // تهيئة الأعمدة المطلوبة
             let excelData = [
-                ["اسم الصنف", "الكود (رقم الصنف)", "السعر"]
+                ["اسم الصنف", "الكود (رقم الصنف)", "السعر (د.ل)"]
             ];
             
-            // حلقة تدور على العناصر المعروضة في الشاشة حالياً (الموجودة في filteredList)
-            filteredList.forEach(item => {
+            itemsToExport.forEach(item => {
                 excelData.push([
                     item.name || 'بدون اسم',
                     item.code || '000',
@@ -833,17 +802,44 @@
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             
-            // تنسيق عرض الأعمدة
-            ws['!cols'] = [{wch:30}, {wch:15}, {wch:10}];
+            // اتجاه الشيت من اليمين لليسار باستخدام المكتبة الجديدة
+            ws['!dir'] = 'rtl';
             
-            // تسمية الملف بناءً على القسم أو الفلتر الحالي
+            // عرض الأعمدة
+            ws['!cols'] = [{wch:35}, {wch:20}, {wch:15}];
+            
+            // التنسيقات
+            const headerStyle = {
+                font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Arial" },
+                fill: { fgColor: { rgb: "800000" } },
+                alignment: { horizontal: "center", vertical: "center" },
+                border: { top: {style:'medium'}, bottom: {style:'medium'}, left: {style:'medium'}, right: {style:'medium'} }
+            };
+
+            const dataStyle = {
+                font: { bold: true, sz: 11, name: "Arial" },
+                alignment: { horizontal: "center", vertical: "center" },
+                border: { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} }
+            };
+
+            for (let R = 0; R <= itemsToExport.length; ++R) {
+                for (let C = 0; C < 3; ++C) {
+                    let cellAddress = XLSX.utils.encode_cell({r: R, c: C});
+                    if (!ws[cellAddress]) continue;
+                    if (R === 0) { ws[cellAddress].s = headerStyle; } 
+                    else { ws[cellAddress].s = dataStyle; }
+                }
+            }
+            
+            ws['!autofilter'] = { ref: `A1:C${itemsToExport.length + 1}` };
+            
             let currentCatName = window.currentFilter === 'all' ? 'الكل' : window.currentFilter;
             let fileName = `أصناف_${currentCatName}.xlsx`;
             
             XLSX.utils.book_append_sheet(wb, ws, "الأصناف المعروضة");
             XLSX.writeFile(wb, fileName);
             
-            alert(`✅ تم تصدير الأصناف المعروضة لـ (${currentCatName}) بنجاح!`);
+            alert(`✅ تم تصدير (${itemsToExport.length}) صنف من قائمة (${currentCatName}) بنجاح!`);
         }
 
         async function exportForGoogleDriveWorkflow() {
