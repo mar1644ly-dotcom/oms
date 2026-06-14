@@ -10,7 +10,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <!-- تم تحديث مكتبة الإكسيل هنا لتدعم التلوين والاتجاه من اليمين لليسار -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -120,6 +119,19 @@
         .btn-call { background: #007bff; border: 1px solid #0056b3; }
         .btn-close-modal { background: #dc3545; color: white; padding: 5px 15px; border: none; border-radius: 5px; cursor: pointer; font-family: "Cairo"; font-size:11px; margin-top: 5px; font-weight:bold; }
 
+        /* تنسيقات نافذة الإحصائيات (الجديدة) */
+        #analytics-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; }
+        .analytics-content { background: white; padding: 20px; border-radius: 12px; width: 95%; max-width: 800px; max-height: 90vh; overflow-y: auto; text-align: center; border: 3px solid #D4AF37; direction: rtl; }
+        .analytics-stats { display: flex; justify-content: space-around; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;}
+        .stat-box { background: #f9f9f9; border: 2px solid #800000; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px;}
+        .stat-box h3 { color: #800000; margin: 0 0 10px 0; font-family: 'Cairo'; font-size: 16px;}
+        .stat-box span { font-size: 24px; font-weight: bold; color: #d49500; }
+        .analytics-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .analytics-table th { background: #800000; color: white; padding: 10px; border: 1px solid #D4AF37; font-family: 'Cairo';}
+        .analytics-table td { padding: 8px; border: 1px solid #ddd; text-align: center; font-size: 13px; font-weight: bold; font-family: 'Cairo';}
+        .btn-print-report { background: #EEDC82; color: #800000; padding: 8px 15px; border: 1px solid #D4AF37; border-radius: 5px; cursor: pointer; font-family: "Cairo"; font-weight: bold; margin-bottom: 10px; transition: 0.3s;}
+        .btn-print-report:hover { background: #D4AF37; }
+
         @media (max-width: 600px) { 
             .header-content-section { flex-wrap: wrap; } 
             .branches-image-wrapper { flex: 0 0 60px; height: 60px; } 
@@ -146,14 +158,14 @@
             .unit-display { min-width: 20px; text-align: center; }
         }
 
+        /* تنسيقات الطباعة الصارمة للتقرير */
         @media print {
-            body { background: white !important; padding: 0 !important; margin: 10mm 15mm !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .no-print, .admin-only, .customer-only, .delete-item-btn, .cat-select-inline, #issue-filters, .menu-export-checkbox-container { display: none !important; }
-            .faidy-top-bar { border-radius: 0 !important; margin-bottom: 20px !important; }
-            .faidy-logo-img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; border: 2px solid #D4AF37 !important; }
-            #main-container { display: block !important; }
-            .item-card { width: 48% !important; display: inline-block !important; margin-right: 1% !important; vertical-align: top !important; max-width: none !important; box-shadow: none !important; border: 1px solid #ddd !important; border-bottom: 5px solid #800000 !important; break-inside: avoid !important; page-break-inside: avoid !important; margin-top: 10px !important; background: white !important; }
-            .name-display, .price-display, .unit-display, .editable-code { border: none !important; }
+            body * { visibility: hidden; }
+            #analytics-modal, #analytics-modal * { visibility: visible; }
+            #analytics-modal { position: absolute; left: 0; top: 0; width: 100%; background: white; align-items: flex-start; padding-top: 20px;}
+            .analytics-content { border: none; box-shadow: none; width: 100%; max-width: 100%; overflow: visible; height: auto; }
+            .btn-close-modal, .btn-print-report { display: none !important; }
+            .analytics-table tr { page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -167,6 +179,46 @@
             <button class="btn-wa" onclick="sendWA()">💬 إرسال عبر واتساب</button>
             <button class="btn-call" onclick="makeCall()">📞 اتصال مباشر</button>
             <button class="btn-close-modal" onclick="closeContactModal()">إغلاق النافذة</button>
+        </div>
+    </div>
+
+    <!-- نافذة تقرير التتبع الإداري -->
+    <div id="analytics-modal" class="admin-only">
+        <div class="analytics-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #D4AF37; padding-bottom:10px; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                <h2 style="color:#800000; margin:0; font-family:'Cairo';">📊 تقرير تفاعل الزبائن (منيو حلواني أبناء الفايدي)</h2>
+                <button class="btn-print-report" onclick="window.print()">🖨️ طباعة التقرير</button>
+            </div>
+            
+            <div class="analytics-stats">
+                <div class="stat-box">
+                    <h3>👁️ إجمالي زيارات المنيو</h3>
+                    <span id="stat-views">0</span>
+                </div>
+                <div class="stat-box">
+                    <h3>🛒 إجمالي طلبات الواتساب</h3>
+                    <span id="stat-clicks">0</span>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ والوقت</th>
+                            <th>نوع التفاعل</th>
+                            <th>رقم الصنف</th>
+                            <th>اسم الصنف</th>
+                            <th>السعر (د.ل)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analytics-tbody">
+                        <tr><td colspan="5">جاري جلب البيانات من السحابة...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <button class="btn-close-modal" onclick="closeAnalyticsModal()" style="background:#dc3545; color:white; padding:8px 20px; font-size:14px; font-weight:bold; font-family:'Cairo'; border:none; border-radius:5px; margin-top:10px; cursor:pointer;">إغلاق التقرير</button>
         </div>
     </div>
 
@@ -251,8 +303,10 @@
                 <input type="file" id="import-links-upload" accept=".xlsx, .csv" style="display:none" onchange="processLinksExcel(this)">
                 
                 <button class="btn-drive-workflow" onclick="exportForGoogleDriveWorkflow()">📁 ملف إكسل + صور (درايف)</button>
-                
                 <button class="btn-filtered-excel" onclick="exportFilteredExcel()">📊 إكسل مخصص (للمعروض فقط)</button>
+
+                <!-- زر الإحصائيات الجديد -->
+                <button class="btn-export-html" onclick="openAnalyticsModal()" style="background:#34495e; border: 1px solid #fff;">📊 تقرير تفاعل الزبائن</button>
 
                 <button class="btn-export-html" onclick="exportStandaloneMenu()">📱 منيو تفاعلي (جودة أصلية)</button>
                 <button class="btn-export-html" onclick="exportCompressedMenu()" style="background:#17a2b8; border: 1px solid #fff;">📱 منيو تفاعلي واتساب (خفيف جداً)</button>
@@ -261,11 +315,9 @@
                 <button class="btn-import-json" onclick="document.getElementById('import-json-upload').click()" style="background:#9b59b6;">📥 حقن نسخة (JSON)</button>
                 <input type="file" id="import-json-upload" accept=".json" style="display:none" onchange="importLocalJSON(this)">
 
-                <!-- الأزرار المعدلة للصور -->
                 <button class="btn-zip" onclick="exportAllImagesFlat()" style="background:#d35400;">📦 كل الصور (كود)</button>
                 <button class="btn-zip" onclick="exportAllImages()" style="background:#ff9800;">📂 صور مقسمة (كود)</button>
                 
-                <!-- أزرار بريستو الجديدة -->
                 <button class="btn-zip" onclick="exportAllImagesFlatPresto()" style="background:#c0392b; border: 1px solid #fff;">🛵 بريستو: كل الصور</button>
                 <button class="btn-zip" onclick="exportAllImagesPresto()" style="background:#e67e22; border: 1px solid #fff;">🛵 بريستو: صور مقسمة</button>
 
@@ -314,6 +366,80 @@
             loadHiddenCategoriesStorage(); 
             initOfflineDBAndLoad(); 
         });
+
+        // ------------------ دوال لوحة الإحصائيات (الجديدة) ------------------
+        function openAnalyticsModal() {
+            document.getElementById('analytics-modal').style.display = 'flex';
+            document.getElementById('analytics-tbody').innerHTML = '<tr><td colspan="5">جاري جلب البيانات من السحابة...</td></tr>';
+            
+            let viewsCount = 0;
+            let clicksCount = 0;
+            let rowsHTML = '';
+            let allEvents = [];
+
+            dbCloud.ref('analytics/page_views').once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        let data = child.val();
+                        viewsCount++;
+                        allEvents.push({
+                            type: '👀 زيارة المنيو',
+                            dateStr: data.date + ' - ' + data.time,
+                            ts: new Date(data.timestamp).getTime() || 0,
+                            code: '-',
+                            name: '-',
+                            price: '-'
+                        });
+                    });
+                }
+                return dbCloud.ref('analytics/whatsapp_clicks').once('value');
+            }).then(snapshot => {
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        let data = child.val();
+                        clicksCount++;
+                        allEvents.push({
+                            type: '🛒 طلب واتساب',
+                            dateStr: data.date + ' - ' + data.time,
+                            ts: new Date(data.timestamp).getTime() || 0,
+                            code: data.itemCode || '-',
+                            name: data.itemName || '-',
+                            price: data.itemPrice || '-'
+                        });
+                    });
+                }
+
+                document.getElementById('stat-views').innerText = viewsCount;
+                document.getElementById('stat-clicks').innerText = clicksCount;
+
+                // الترتيب من الأحدث إلى الأقدم
+                allEvents.sort((a, b) => b.ts - a.ts);
+
+                if (allEvents.length === 0) {
+                    rowsHTML = '<tr><td colspan="5">لا توجد بيانات مسجلة حتى الآن.</td></tr>';
+                } else {
+                    allEvents.forEach(ev => {
+                        let rowStyle = ev.type.includes('طلب') ? 'background-color: rgba(40, 167, 69, 0.1);' : '';
+                        rowsHTML += `<tr style="${rowStyle}">
+                            <td style="direction:ltr;">${ev.dateStr}</td>
+                            <td>${ev.type}</td>
+                            <td>${ev.code}</td>
+                            <td>${ev.name}</td>
+                            <td>${ev.price}</td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('analytics-tbody').innerHTML = rowsHTML;
+
+            }).catch(e => {
+                document.getElementById('analytics-tbody').innerHTML = '<tr><td colspan="5">حدث خطأ في جلب البيانات. الرجاء التأكد من الاتصال.</td></tr>';
+            });
+        }
+
+        function closeAnalyticsModal() {
+            document.getElementById('analytics-modal').style.display = 'none';
+        }
+        // -------------------------------------------------------------------
 
         function initOfflineDBAndLoad() {
             const request = indexedDB.open("FaidyOfflineDB", 1);
@@ -929,6 +1055,9 @@
         
         @media (min-width: 601px) { .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } .card img { height: 180px; } }
     </style>
+    <!-- تضمين مكتبات فايربيس للتتبع -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"><\/script>
 </head>
 <body>
     <div class="top-bar">
@@ -956,6 +1085,29 @@
     </div>
 
     <script>
+        // إعدادات قاعدة البيانات للتتبع
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr-XVqipP8NBOakKQgYR4gfLyYaFDwqD8",
+            authDomain: "faidy-web-app.firebaseapp.com",
+            databaseURL: "https://faidy-web-app-default-rtdb.firebaseio.com",
+            projectId: "faidy-web-app",
+            storageBucket: "faidy-web-app.firebasestorage.app",
+            messagingSenderId: "425340022026",
+            appId: "1:425340022026:web:9342a7b3426a71fb9e1ef3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbTracker = firebase.database();
+
+        // 1. تسجيل زيارة الصفحة فوراً عند الفتح
+        window.onload = function() {
+            const now = new Date();
+            dbTracker.ref('analytics/page_views').push({
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('ar-EG'),
+                time: now.toLocaleTimeString('ar-EG')
+            }).catch(e => console.log(e));
+        };
+
         let currentCat = 'all';
         let cName = '', cCode = '', cPrice = '', cLink = '';
 
@@ -995,8 +1147,23 @@
             const phone = document.getElementById('branchSelect').value;
             let msg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + cName + "*\\nرقم الصنف: " + cCode + " | السعر: " + cPrice + " د.ل\\n";
             if(cLink) msg += "-----------------------------------\\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\\n" + cLink;
-            window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
-            closeModal();
+            
+            // 2. تسجيل نقرة الواتساب مع تفاصيل الصنف
+            const now = new Date();
+            dbTracker.ref('analytics/whatsapp_clicks').push({
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('ar-EG'),
+                time: now.toLocaleTimeString('ar-EG'),
+                itemName: cName,
+                itemCode: cCode,
+                itemPrice: cPrice
+            }).then(() => {
+                window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
+                closeModal();
+            }).catch(() => {
+                window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
+                closeModal();
+            });
         }
     <\/script>
 </body>
@@ -1007,8 +1174,9 @@
             link.href = URL.createObjectURL(blob);
             link.download = isCompressed ? "منيو_الفايدي_لزبائن_خفيف.html" : "منيو_الفايدي_التفاعلي_الكامل.html";
             link.click();
-            alert("✅ تم التصدير بنجاح!");
+            alert("✅ تم التصدير بنجاح! هذا المنيو الآن يحتوي على حساسات التتبع السحابية.");
         }
+
         function compressImageAsync(base64Str, maxWidth = 350, quality = 0.4) { 
             return new Promise((resolve) => { 
                 if (!base64Str || !base64Str.startsWith('data:image')) { resolve(base64Str); return; } 
@@ -1107,9 +1275,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ==========================================
-        // 1. الأزرار الأصلية (تم إضافة استثناء غير المحدد)
-        // ==========================================
         async function exportAllImagesFlat() { 
             alert("جاري التجميع المباشر من السحابة..."); const zip = new JSZip(); let hasImages = false; 
             allItemsGlobal.forEach(i => { 
@@ -1136,9 +1301,6 @@
             if(hasImages) { zip.generateAsync({type: "blob"}).then(content => { saveAs(content, "صور_الفايدي_بالأقسام.zip"); alert("✅ تم بنجاح!"); }); } else { alert("لا توجد صور للأصناف المحددة!"); }
         }
 
-        // ==========================================
-        // 2. أزرار بريستو الجديدة (تستثني غير المحدد + الاسم والسعر فقط)
-        // ==========================================
         async function exportAllImagesFlatPresto() { 
             alert("جاري التجميع لبريستو (الاسم والسعر فقط)..."); const zip = new JSZip(); let hasImages = false; 
             allItemsGlobal.forEach(i => { 

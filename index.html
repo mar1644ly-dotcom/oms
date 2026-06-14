@@ -30,6 +30,9 @@
         
         @media (min-width: 601px) { .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } .card img { height: 180px; } }
     </style>
+    <!-- تضمين مكتبات فايربيس للتتبع -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <div class="top-bar">
@@ -1310,6 +1313,29 @@
     </div>
 
     <script>
+        // إعدادات قاعدة البيانات للتتبع
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr-XVqipP8NBOakKQgYR4gfLyYaFDwqD8",
+            authDomain: "faidy-web-app.firebaseapp.com",
+            databaseURL: "https://faidy-web-app-default-rtdb.firebaseio.com",
+            projectId: "faidy-web-app",
+            storageBucket: "faidy-web-app.firebasestorage.app",
+            messagingSenderId: "425340022026",
+            appId: "1:425340022026:web:9342a7b3426a71fb9e1ef3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbTracker = firebase.database();
+
+        // 1. تسجيل زيارة الصفحة فوراً عند الفتح
+        window.onload = function() {
+            const now = new Date();
+            dbTracker.ref('analytics/page_views').push({
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('ar-EG'),
+                time: now.toLocaleTimeString('ar-EG')
+            }).catch(e => console.log(e));
+        };
+
         let currentCat = 'all';
         let cName = '', cCode = '', cPrice = '', cLink = '';
 
@@ -1349,8 +1375,23 @@
             const phone = document.getElementById('branchSelect').value;
             let msg = "مرحباً حلواني أبناء الفايدي، أود طلب الصنف: *" + cName + "*\nرقم الصنف: " + cCode + " | السعر: " + cPrice + " د.ل\n";
             if(cLink) msg += "-----------------------------------\n❖ [ 📸 رابط الصورة المعتمدة في النظام ]:\n" + cLink;
-            window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
-            closeModal();
+            
+            // 2. تسجيل نقرة الواتساب مع تفاصيل الصنف
+            const now = new Date();
+            dbTracker.ref('analytics/whatsapp_clicks').push({
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('ar-EG'),
+                time: now.toLocaleTimeString('ar-EG'),
+                itemName: cName,
+                itemCode: cCode,
+                itemPrice: cPrice
+            }).then(() => {
+                window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
+                closeModal();
+            }).catch(() => {
+                window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg), "_blank");
+                closeModal();
+            });
         }
     </script>
 </body>
