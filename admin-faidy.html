@@ -235,7 +235,7 @@
             <div class="header-title-section">
                 <div class="faidy-logo-container">
                     <label class="faidy-logo-label">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQ2Fpcm8sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMThweCIgZmlsbD0iIzgwMDAwMCIgZm9udC13ZWlnaHQ9ImJvbGQiPtin2YTZgdmH2YjYuDwvdGV4dD48L3N2Zz4=" alt="الشعار" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQ2Fpcm8sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjRweCIgZmlsbD0iIzgwMDAwMCIgZm9udC13ZWlnaHQ9ImJvbGQiPtin2YTZgdin2YrYr9mKPC90ZXh0Pjwvc3ZnPg==" alt="الشعار" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
                         <input type="file" style="display:none" class="admin-master-only" onchange="uploadMainLogo(this)">
                     </label>
                     <div class="brand-right-title">حلواني أبناء الفايدي 1989 <span id="current-branch-badge" style="background:#800000; color:white; padding:2px 8px; border-radius:6px; font-size:12px; margin-right:8px; display:none;"></span></div>
@@ -374,7 +374,6 @@
         <div id="main-container"></div>
     </div>
 
-    <!-- نافذة التقارير المركزية -->
     <div id="analytics-modal" class="admin-master-only">
         <div class="analytics-content">
             <div class="analytics-header-row">
@@ -1287,7 +1286,6 @@
             let imgHours = localStorage.getItem('faidy_header_hours') || 'https://via.placeholder.com/350x60/D4AF37/800000?text=مواعيد+العمل';
             let imgDeliv = localStorage.getItem('faidy_header_delivery') || 'https://via.placeholder.com/350x60/D4AF37/800000?text=خدمات+التوصيل';
             let imgPay = localStorage.getItem('faidy_header_payment') || 'https://via.placeholder.com/350x60/D4AF37/800000?text=طرق+الدفع';
-            const mainLogoBase64 = document.getElementById("faidyMainLogo").src;
 
             const menuHTML = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1301,20 +1299,6 @@
         .top-bar { background: #800000; color: white; padding: 15px 10px; text-align: center; border-bottom: 3px solid #D4AF37; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .top-bar h2 { margin: 0 0 10px 0; font-size: 20px; color: #EEDC82; font-weight: 900; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
         
-        /* 🛠️ تنسيق شاشة الترحيب */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #800000 0%, #4A0000 100%); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out; }
-        .splash-logo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #D4AF37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); animation: pulse 1.5s infinite alternate; background: #fff; object-fit: cover; }
-        .splash-text { color: #EEDC82; font-family: 'Cairo'; font-size: 24px; font-weight: 900; margin-top: 20px; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); text-align: center; }
-        .splash-sub { color: #fff; font-family: 'Cairo'; font-size: 16px; margin-top: 5px; opacity: 0.9; text-align: center; }
-        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
-        .fade-out { opacity: 0; pointer-events: none; }
-
-        /* 🛠️ تنسيق تذييل العراقة */
-        .faidy-footer { background: #4A0000; color: #fdfbf7; text-align: center; padding: 30px 15px; margin-top: 40px; border-top: 5px solid #D4AF37; }
-        .faidy-footer h3 { color: #EEDC82; font-size: 20px; margin: 0 0 10px 0; font-weight: 900; }
-        .faidy-footer p { font-size: 14px; line-height: 1.6; max-width: 600px; margin: 0 auto; opacity: 0.9; }
-        .footer-year { display: inline-block; background: #D4AF37; color: #800000; padding: 3px 12px; border-radius: 20px; font-weight: bold; margin-top: 15px; font-size: 12px; }
-
         .cs-button { background:#25D366; color:white; border:none; padding:8px 20px; border-radius:25px; font-family:'Cairo'; font-weight:bold; font-size:13px; margin-bottom:12px; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display:inline-flex; align-items:center; gap:6px; transition:0.3s; }
         .cs-button:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.2); }
 
@@ -1385,14 +1369,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"><\/script>
 </head>
 <body>
-
-    <!-- 🛠️ شاشة الترحيب الملكية -->
-    <div id="splash-screen">
-        <img src="${mainLogoBase64}" class="splash-logo" alt="الفايدي">
-        <div class="splash-text">حلواني أبناء الفايدي</div>
-        <div class="splash-sub">نصنع الفرح منذ 1989</div>
-    </div>
-
     <div class="top-bar">
         <h2>حلواني أبناء الفايدي 1989</h2>
         ${csPhone ? `<button class="cs-button" onclick="window.open('https://wa.me/${csPhone}?text=مرحباً خدمة العملاء، لدي استفسار:', '_blank')">💬 تواصل مع خدمة العملاء</button><br>` : ''}
@@ -1400,6 +1376,7 @@
             ${branchOptions}
         </select>
         
+        <!-- 🛠️ شريط العرض القابل للطي (Accordion) -->
         <div id="toggle-info-container" style="display:none; text-align:center; margin-top:10px; margin-bottom:10px;">
             <button id="toggle-info-btn" onclick="toggleBranchInfo()" style="background:#fff; border:2px solid #D4AF37; color:#800000; padding:6px 15px; border-radius:20px; font-family:'Cairo'; font-weight:bold; font-size:13px; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.05); transition:0.3s;">ℹ️ عرض تفاصيل الدفع والتوصيل ⬇️</button>
         </div>
@@ -1430,13 +1407,6 @@
     <div class="filter-container">${catButtonsHTML}</div>
     <div id="dormant-msg">الرجاء اختيار الفرع الأقرب إليك من الأعلى لتفعيل المنيو 👆</div>
     <div class="grid dormant" id="menu-grid">${cardsHTML}</div>
-
-    <!-- 🛠️ تذييل العراقة والقيم -->
-    <div class="faidy-footer">
-        <h3>حلواني أبناء الفايدي</h3>
-        <p>مسيرة ممتدة منذ عام 1989 في تقديم تشكيلة واسعة من الحلويات الشرقية والغربية والمعجنات. نلتزم بأعلى معايير الجودة والنظافة، ونفخر بكوننا جزءاً من مناسباتكم السعيدة.</p>
-        <div class="footer-year">عراقة - جودة - ثقة</div>
-    </div>
 
     <!-- السلة العائمة -->
     <div class="cart-float" id="cartFloat" onclick="openCartModal()">
@@ -1492,13 +1462,6 @@
         let myCart = []; 
 
         window.onload = function() {
-            // 🛠️ تشغيل شاشة الترحيب وإخفائها بعد ثانيتين
-            setTimeout(function() {
-                const splash = document.getElementById('splash-screen');
-                splash.classList.add('fade-out');
-                setTimeout(() => splash.style.display = 'none', 800);
-            }, 2000);
-
             const now = new Date();
             dbTracker.ref('analytics/page_views').push({ timestamp: now.toISOString(), date: now.toLocaleDateString('ar-EG'), time: now.toLocaleTimeString('ar-EG') });
             
@@ -1513,6 +1476,7 @@
             });
         };
 
+        // 🛠️ دالة إظهار/إخفاء تفاصيل الفرع
         function toggleBranchInfo() {
             let panel = document.getElementById('live-info-panel');
             let btn = document.getElementById('toggle-info-btn');
@@ -1528,7 +1492,7 @@
         }
 
         function activateMenu(selectEl) {
-            selectEl.blur(); 
+            selectEl.blur(); // 🛠️ إصلاح مشكلة التركيز (Focus Bug)
             
             currentBranchId = selectEl.value;
             currentBranchPhone = selectEl.options[selectEl.selectedIndex].getAttribute('data-phone');
@@ -1592,7 +1556,7 @@
 
             if(hasContent) {
                 toggleContainer.style.display = 'block';
-                panel.style.display = 'none'; 
+                panel.style.display = 'none'; // نبقيها مخفية افتراضياً لتوفير المساحة
                 btn.innerHTML = 'ℹ️ عرض تفاصيل الدفع والتوصيل ⬇️';
             } else {
                 toggleContainer.style.display = 'none';
