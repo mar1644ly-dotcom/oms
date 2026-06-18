@@ -119,6 +119,8 @@
         .left-controls-group { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
         .price-container { display: flex; align-items: center; gap: 3px; color: #d49500; font-weight: 700; font-size: 18px; }
         .price-display { outline: none; min-width: 30px; text-align: center; border-radius: 4px; background: rgba(212, 175, 55, 0.1); padding: 0 4px; }
+        .brand-right-title { font-weight: 900; color: #400000; font-size: 16px; padding: 2px 5px; border-radius: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        
         .unit-area { font-size: 11px; color: #666; font-weight: bold; display: flex; gap: 3px; justify-content: flex-end; white-space: nowrap; }
         .unit-display { outline: none; min-width: 35px; color: #800000; text-align: right; border-bottom: 1px dashed #ccc; }
         
@@ -149,19 +151,6 @@
         .branch-stock-switch.low { background: #d35400; }
         .branch-stock-switch.off { background: #c0392b; }
         .btn-close-modal { background: #dc3545; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-family: "Cairo"; font-size:12px; font-weight:bold; width: 100%; margin-top: 10px; }
-
-        #analytics-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; }
-        .analytics-content { background: white; padding: 20px; border-radius: 12px; width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; text-align: center; border: 3px solid #D4AF37; direction: rtl; }
-        .analytics-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .analytics-filter-box select { padding: 6px 12px; font-family: 'Cairo'; border: 2px solid #800000; border-radius: 5px; font-weight: bold; color: #800000; outline: none; }
-        .analytics-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: #f9f9f9; border: 2px solid #800000; padding: 12px; border-radius: 8px; }
-        .stat-box h3 { color: #800000; margin: 0 0 5px 0; font-family: 'Cairo'; font-size: 13px; }
-        .stat-box span { font-size: 20px; font-weight: 900; color: #d49500; }
-        .analytics-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .analytics-table th { background: #800000; color: white; padding: 10px; border: 1px solid #D4AF37; font-family: 'Cairo'; font-size: 12px; }
-        .analytics-table td { padding: 8px; border: 1px solid #ddd; text-align: center; font-size: 12px; font-weight: bold; font-family: 'Cairo'; }
-        .btn-print-report { background: #EEDC82; color: #800000; padding: 8px 15px; border: 1px solid #D4AF37; border-radius: 5px; cursor: pointer; font-family: "Cairo"; font-weight: bold; margin-bottom: 10px; }
 
         .branch-settings-panel { background: white; border: 2px solid #D4AF37; border-radius: 12px; padding: 15px; margin: 15px auto; width: 95%; max-width: 900px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .branch-settings-panel h3 { color: #800000; margin-top: 0; border-bottom: 2px dashed #D4AF37; padding-bottom: 8px; font-size: 16px; }
@@ -235,7 +224,7 @@
             <div class="header-title-section">
                 <div class="faidy-logo-container">
                     <label class="faidy-logo-label">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQ2Fpcm8sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMThweCIgZmlsbD0iIzgwMDAwMCIgZm9udC13ZWlnaHQ9ImJvbGQiPtin2YTZgdmH2YjYuDwvdGV4dD48L3N2Zz4=" alt="الشعار" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQ2Fpcm8sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjRweCIgZmlsbD0iIzgwMDAwMCIgZm9udC13ZWlnaHQ9ImJvbGQiPtin2YTZgdin2YrYr9mKPC90ZXh0Pjwvc3ZnPg==" alt="الشعار" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
                         <input type="file" style="display:none" class="admin-master-only" onchange="uploadMainLogo(this)">
                     </label>
                     <div class="brand-right-title">حلواني أبناء الفايدي 1989 <span id="current-branch-badge" style="background:#800000; color:white; padding:2px 8px; border-radius:6px; font-size:12px; margin-right:8px; display:none;"></span></div>
@@ -251,7 +240,6 @@
             </div>
         </div>
 
-        <!-- لوحة إعدادات الفرع (اللامركزية) -->
         <div class="branch-settings-panel branch-manager-only no-print">
             <h3>⚙️ لوحة إعدادات الفرع (تنعكس فوراً في منيو الزبائن)</h3>
             <div class="bs-grid">
@@ -265,7 +253,7 @@
                 </div>
                 <div class="bs-input-group">
                     <label>حالة التوصيل اليوم:</label>
-                    <label style="cursor:pointer; display:inline-flex; align-items:center; gap:5px;"><input type="checkbox" id="bs-delivery-active"> الخدمة متاحة ومفعلة ✅</label>
+                    <label style="cursor:pointer; display:inline-flex; align-items:center; gap:5px;"><input type="checkbox" id="bs-delivery-active"> الخدمة متاح ومفعلة ✅</label>
                 </div>
             </div>
             <div style="margin-top:15px;">
@@ -276,7 +264,7 @@
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="موبي كاش"> موبي كاش</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="ادفع لي"> ادفع لي</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="ون باي"> ون باي</label>
-                    <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="البطاقات المصرفية"> البطاقات المصرفية</label>
+                    <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="البطاقات"> البطاقات المصرفية</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="يسر باي"> يسر باي</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="مصرفي باي"> مصرفي باي</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="التحويل المصرفي"> التحويل المصرفي</label>
@@ -374,7 +362,6 @@
         <div id="main-container"></div>
     </div>
 
-    <!-- نافذة التقارير المركزية -->
     <div id="analytics-modal" class="admin-master-only">
         <div class="analytics-content">
             <div class="analytics-header-row">
@@ -1053,11 +1040,7 @@
                 reader.onload = function(e) { 
                     const rawBase64 = e.target.result;
                     const item = allItemsGlobal.find(i => i.id === id);
-                    if(item) {
-                        item.img = rawBase64;
-                        updateItemInDB(item);
-                        queueRender();
-                    }
+                    if(item) { item.img = rawBase64; updateItemInDB(item); queueRender(); }
                 }; 
                 reader.readAsDataURL(input.files[0]); 
             } 
@@ -1081,7 +1064,6 @@
 
         function updateItemSelection(id, isChecked) { updateField(id, 'selectedForMenu', isChecked); queueRender(); }
         function updateItemNeedsPic(id, isChecked) { updateField(id, 'needsPic', isChecked); queueRender(); }
-        
         function updateItemCategoryInline(id, newCat) { updateField(id, 'cat', newCat); queueRender(); }
         function toggleFeatured(id, btn) { const idx = allItemsGlobal.findIndex(i => i.id === id); if(idx !== -1) { allItemsGlobal[idx].featured = !allItemsGlobal[idx].featured; updateItemInDB(allItemsGlobal[idx]); queueRender(); } }
         
@@ -1733,7 +1715,6 @@
             document.getElementById('cartItemsContainer').innerHTML = html;
             document.getElementById('cartTotalDisplay').innerText = "الإجمالي: " + total.toFixed(2) + " د.ل";
             
-            // حقن خيارات الدفع الخاصة بالفرع
             let payContainer = document.getElementById('payment-container');
             let settings = globalBranchSettings[currentBranchId];
             if (settings && settings.payments && settings.payments.length > 0) {
@@ -1773,7 +1754,13 @@
                 if (payRadio) selectedPay = payRadio.value;
             }
 
+            // 💡 التعديل السحري: توليد كود الطلب أوتوماتيكياً
+            let orderId = Math.floor(1000 + Math.random() * 9000); 
+
             let total = 0; let msg = "مرحباً حلواني أبناء الفايدي، أود طلب:\\n\\n";
+            
+            // حقن الكود التلقائي في الرسالة
+            msg += "🔖 *رقم الطلب (للتتبع):* " + orderId + "\\n\\n";
             
             msg += "👤 *الاسم:* " + cName + "\\n";
             msg += "📞 *الرقم:* " + cPhone + "\\n";
@@ -1819,7 +1806,7 @@
             link.href = URL.createObjectURL(blob);
             link.download = isCompressed ? "منيو_الفايدي_الزبائن.html" : "منيو_جودة_عالية.html";
             link.click();
-            alert("✅ تم التصدير بنجاح! المنيو تم تجهيزه بشاشة الترحيب وتذييل القيم وسلة التوصيل المدمجة.");
+            alert("✅ تم التصدير بنجاح! المنيو تم تجهيزه بنظام سلة المشتريات واللوحة الحية للفروع وتوليد الأكواد التلقائي.");
         }
 
         function compressImageAsync(base64Str, maxWidth = 350, quality = 0.4) { 
@@ -1916,7 +1903,7 @@
             const exportItems = filteredList.filter(i => !i.isPlaceholder && i.selectedForMenu !== false && i.img && i.img.startsWith('data:image'));
             exportItems.forEach(i => { 
                 const cleanCatFolder = String(i.cat || 'عام').replace(/[\\/:*?"<>|]/g, "").trim(); 
-                const base64Data = i.img.split(',')[1]; const cleanName = String(i.name || '').replace(/[\\/:*?"<>|]/g, "").trim(); const cleanCode = String(i.code || '000').replace(/[\\/:*?"<>|]/g, "").trim(); 
+                const base64Data = item.img.split(',')[1]; const cleanName = String(i.name || '').replace(/[\\/:*?"<>|]/g, "").trim(); const cleanCode = String(i.code || '000').replace(/[\\/:*?"<>|]/g, "").trim(); 
                 zip.file(cleanCatFolder + "/" + `${cleanName} | رقم ${cleanCode}.jpg`, base64Data, {base64: true}); hasImages = true; 
             }); 
             if(hasImages) { zip.generateAsync({type: "blob"}).then(content => { saveAs(content, "صور_الفايدي_بالأقسام.zip"); alert("✅ تم بنجاح!"); }); } else { alert("لا توجد صور للأصناف المعروضة والمحددة!"); }
