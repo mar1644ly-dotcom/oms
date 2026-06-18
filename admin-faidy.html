@@ -235,7 +235,7 @@
             <div class="header-title-section">
                 <div class="faidy-logo-container">
                     <label class="faidy-logo-label">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQ2Fpcm8sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjRweCIgZmlsbD0iIzgwMDAwMCIgZm9udC13ZWlnaHQ9ImJvbGQiPtin2YTZgdin2YrYr9mKPC90ZXh0Pjwvc3ZnPg==" alt="الشعار" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQ2Fpcm8sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMThweCIgZmlsbD0iIzgwMDAwMCIgZm9udC13ZWlnaHQ9ImJvbGQiPtin2YTZgdmH2YjYuDwvdGV4dD48L3N2Zz4=" alt="الشعار" class="faidy-logo-img" id="faidyMainLogo" loading="lazy">
                         <input type="file" style="display:none" class="admin-master-only" onchange="uploadMainLogo(this)">
                     </label>
                     <div class="brand-right-title">حلواني أبناء الفايدي 1989 <span id="current-branch-badge" style="background:#800000; color:white; padding:2px 8px; border-radius:6px; font-size:12px; margin-right:8px; display:none;"></span></div>
@@ -276,7 +276,7 @@
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="موبي كاش"> موبي كاش</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="ادفع لي"> ادفع لي</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="ون باي"> ون باي</label>
-                    <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="البطاقات"> البطاقات المصرفية</label>
+                    <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="البطاقات المصرفية"> البطاقات المصرفية</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="يسر باي"> يسر باي</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="مصرفي باي"> مصرفي باي</label>
                     <label class="bs-checkbox-label"><input type="checkbox" class="bs-pay" value="التحويل المصرفي"> التحويل المصرفي</label>
@@ -374,6 +374,7 @@
         <div id="main-container"></div>
     </div>
 
+    <!-- نافذة التقارير المركزية -->
     <div id="analytics-modal" class="admin-master-only">
         <div class="analytics-content">
             <div class="analytics-header-row">
@@ -1286,6 +1287,7 @@
             let imgHours = localStorage.getItem('faidy_header_hours') || 'https://via.placeholder.com/350x60/D4AF37/800000?text=مواعيد+العمل';
             let imgDeliv = localStorage.getItem('faidy_header_delivery') || 'https://via.placeholder.com/350x60/D4AF37/800000?text=خدمات+التوصيل';
             let imgPay = localStorage.getItem('faidy_header_payment') || 'https://via.placeholder.com/350x60/D4AF37/800000?text=طرق+الدفع';
+            const mainLogoBase64 = document.getElementById("faidyMainLogo").src;
 
             const menuHTML = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1299,6 +1301,18 @@
         .top-bar { background: #800000; color: white; padding: 15px 10px; text-align: center; border-bottom: 3px solid #D4AF37; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .top-bar h2 { margin: 0 0 10px 0; font-size: 20px; color: #EEDC82; font-weight: 900; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
         
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #800000 0%, #4A0000 100%); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out; }
+        .splash-logo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #D4AF37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); animation: pulse 1.5s infinite alternate; background: #fff; object-fit: cover; }
+        .splash-text { color: #EEDC82; font-family: 'Cairo'; font-size: 24px; font-weight: 900; margin-top: 20px; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); text-align: center; }
+        .splash-sub { color: #fff; font-family: 'Cairo'; font-size: 16px; margin-top: 5px; opacity: 0.9; text-align: center; }
+        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+        .fade-out { opacity: 0; pointer-events: none; }
+
+        .faidy-footer { background: #4A0000; color: #fdfbf7; text-align: center; padding: 30px 15px; margin-top: 40px; border-top: 5px solid #D4AF37; }
+        .faidy-footer h3 { color: #EEDC82; font-size: 20px; margin: 0 0 10px 0; font-weight: 900; }
+        .faidy-footer p { font-size: 14px; line-height: 1.6; max-width: 600px; margin: 0 auto; opacity: 0.9; }
+        .footer-year { display: inline-block; background: #D4AF37; color: #800000; padding: 3px 12px; border-radius: 20px; font-weight: bold; margin-top: 15px; font-size: 12px; }
+
         .cs-button { background:#25D366; color:white; border:none; padding:8px 20px; border-radius:25px; font-family:'Cairo'; font-weight:bold; font-size:13px; margin-bottom:12px; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display:inline-flex; align-items:center; gap:6px; transition:0.3s; }
         .cs-button:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.2); }
 
@@ -1369,6 +1383,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"><\/script>
 </head>
 <body>
+
+    <div id="splash-screen">
+        <img src="${mainLogoBase64}" class="splash-logo" alt="الفايدي">
+        <div class="splash-text">حلواني أبناء الفايدي</div>
+        <div class="splash-sub">نصنع الفرح منذ 1989</div>
+    </div>
+
     <div class="top-bar">
         <h2>حلواني أبناء الفايدي 1989</h2>
         ${csPhone ? `<button class="cs-button" onclick="window.open('https://wa.me/${csPhone}?text=مرحباً خدمة العملاء، لدي استفسار:', '_blank')">💬 تواصل مع خدمة العملاء</button><br>` : ''}
@@ -1376,7 +1397,6 @@
             ${branchOptions}
         </select>
         
-        <!-- 🛠️ شريط العرض القابل للطي (Accordion) -->
         <div id="toggle-info-container" style="display:none; text-align:center; margin-top:10px; margin-bottom:10px;">
             <button id="toggle-info-btn" onclick="toggleBranchInfo()" style="background:#fff; border:2px solid #D4AF37; color:#800000; padding:6px 15px; border-radius:20px; font-family:'Cairo'; font-weight:bold; font-size:13px; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.05); transition:0.3s;">ℹ️ عرض تفاصيل الدفع والتوصيل ⬇️</button>
         </div>
@@ -1387,7 +1407,6 @@
         <input type="text" id="searchInput" class="search-box" placeholder="ابحث بالاسم أو الرقم..." oninput="filterItems()" style="margin-top:10px;">
     </div>
 
-    <!-- لوحة عرض الإعدادات الحية للفرع مخفية افتراضياً -->
     <div id="live-info-panel" class="live-info-panel">
         <div class="info-section" id="sec-hours" style="display:none;">
             <img src="${imgHours}" style="max-width:100%; max-height:60px; border-radius:8px; margin-bottom:8px;">
@@ -1408,18 +1427,46 @@
     <div id="dormant-msg">الرجاء اختيار الفرع الأقرب إليك من الأعلى لتفعيل المنيو 👆</div>
     <div class="grid dormant" id="menu-grid">${cardsHTML}</div>
 
-    <!-- السلة العائمة -->
+    <div class="faidy-footer">
+        <h3>حلواني أبناء الفايدي</h3>
+        <p>مسيرة ممتدة منذ عام 1989 في تقديم تشكيلة واسعة من الحلويات الشرقية والغربية والمعجنات. نلتزم بأعلى معايير الجودة والنظافة، ونفخر بكوننا جزءاً من مناسباتكم السعيدة.</p>
+        <div class="footer-year">عراقة - جودة - ثقة</div>
+    </div>
+
     <div class="cart-float" id="cartFloat" onclick="openCartModal()">
         🛒 مراجعة السلة <span class="cart-badge" id="cartBadge">0</span>
     </div>
 
-    <!-- نافذة مراجعة السلة -->
     <div id="cartModal">
         <div class="cart-modal-content">
             <h2 style="color:#800000; margin-top:0; border-bottom:2px solid #D4AF37; padding-bottom:10px;">🛒 سلة مشترياتك</h2>
             <div id="cartItemsContainer"></div>
             <div class="cart-total-display" id="cartTotalDisplay">الإجمالي: 0.00 د.ل</div>
-            <button class="btn-wa" onclick="sendCartWA()">✅ إرسال الطلب المجمع للفرع</button>
+            
+            <div id="checkout-form" style="background: #faf8f5; padding: 15px; border-radius: 8px; border: 1px solid #D4AF37; margin-bottom: 15px; text-align: right;">
+                <h4 style="margin-top:0; color:#800000; border-bottom: 1px dashed #ccc; padding-bottom:5px;">بيانات الاستلام للتواصل</h4>
+                <input type="text" id="cust-name" placeholder="الاسم الكريم (اختياري)" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; margin-bottom:10px; font-family:'Cairo'; box-sizing:border-box;">
+                <input type="tel" id="cust-phone" placeholder="رقم الهاتف (مطلوب)*" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; margin-bottom:10px; font-family:'Cairo'; box-sizing:border-box; direction:ltr; text-align:right;">
+                
+                <div style="margin-bottom:10px; font-weight:bold; font-size:14px; color:#333;">طريقة الاستلام:</div>
+                <div style="display:flex; gap:15px; margin-bottom:10px; font-size:14px;">
+                    <label style="cursor:pointer;"><input type="radio" name="recv-method" value="pickup" checked onchange="toggleAddressField()"> 🚶‍♂️ استلام من الفرع</label>
+                    <label id="delivery-radio-label" style="display:none; cursor:pointer;"><input type="radio" name="recv-method" value="delivery" onchange="toggleAddressField()"> 🛵 توصيل للعنوان</label>
+                </div>
+                
+                <div id="address-container" style="display:none; margin-bottom:10px;">
+                    <textarea id="cust-address" placeholder="المنطقة، الشارع، أقرب نقطة دالة..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; font-family:'Cairo'; box-sizing:border-box; resize:vertical; min-height:60px;"></textarea>
+                </div>
+
+                <div style="margin-bottom:10px; font-weight:bold; font-size:14px; color:#333; border-top: 1px dashed #ccc; padding-top:10px;">طريقة السداد (اختياري):</div>
+                <div style="display:flex; gap:15px; margin-bottom:10px; font-size:14px;">
+                    <label style="cursor:pointer;"><input type="checkbox" id="toggle-payment" onchange="togglePaymentField()"> 💳 تحديد طريقة الدفع مسبقاً</label>
+                </div>
+                <div id="payment-container" style="display:none; background:#fff; padding:10px; border-radius:5px; border:1px solid #ccc; flex-wrap:wrap; gap:10px; font-size:13px;">
+                </div>
+            </div>
+
+            <button class="btn-wa" onclick="sendCartWA()">✅ اعتماد وإرسال الطلب للفرع</button>
             <button class="btn-close" style="background:#666;" onclick="closeCartModal()">إغلاق ومتابعة التسوق</button>
         </div>
     </div>
@@ -1462,6 +1509,12 @@
         let myCart = []; 
 
         window.onload = function() {
+            setTimeout(function() {
+                const splash = document.getElementById('splash-screen');
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.style.display = 'none', 800);
+            }, 2000);
+
             const now = new Date();
             dbTracker.ref('analytics/page_views').push({ timestamp: now.toISOString(), date: now.toLocaleDateString('ar-EG'), time: now.toLocaleTimeString('ar-EG') });
             
@@ -1476,7 +1529,16 @@
             });
         };
 
-        // 🛠️ دالة إظهار/إخفاء تفاصيل الفرع
+        function toggleAddressField() {
+            let isDelivery = document.querySelector('input[name="recv-method"]:checked').value === 'delivery';
+            document.getElementById('address-container').style.display = isDelivery ? 'block' : 'none';
+        }
+
+        function togglePaymentField() {
+            let isChecked = document.getElementById('toggle-payment').checked;
+            document.getElementById('payment-container').style.display = isChecked ? 'flex' : 'none';
+        }
+
         function toggleBranchInfo() {
             let panel = document.getElementById('live-info-panel');
             let btn = document.getElementById('toggle-info-btn');
@@ -1492,7 +1554,7 @@
         }
 
         function activateMenu(selectEl) {
-            selectEl.blur(); // 🛠️ إصلاح مشكلة التركيز (Focus Bug)
+            selectEl.blur(); 
             
             currentBranchId = selectEl.value;
             currentBranchPhone = selectEl.options[selectEl.selectedIndex].getAttribute('data-phone');
@@ -1522,10 +1584,12 @@
             let secH = document.getElementById('sec-hours');
             let secP = document.getElementById('sec-payments');
             let secD = document.getElementById('sec-delivery');
+            let delRadio = document.getElementById('delivery-radio-label');
 
             if(!settings) { 
                 toggleContainer.style.display = 'none'; 
                 panel.style.display = 'none'; 
+                if(delRadio) { delRadio.style.display = 'none'; document.querySelector('input[name="recv-method"][value="pickup"]').checked = true; toggleAddressField(); }
                 return; 
             }
             
@@ -1543,20 +1607,32 @@
                 secP.style.display = 'block'; hasContent = true;
             } else { secP.style.display = 'none'; }
 
-            if(settings.deliveryActive && settings.deliveryNumbers && settings.deliveryNumbers.trim() !== '') {
-                let nums = settings.deliveryNumbers.split(',');
-                let html = '';
-                nums.forEach(n => {
-                    let clean = n.trim().replace(/[^\\d]/g, '');
-                    html += '<a href="tel:' + clean + '" class="del-btn">📞 ' + n.trim() + '</a>';
-                });
-                document.getElementById('buttons-delivery').innerHTML = html;
-                secD.style.display = 'block'; hasContent = true;
-            } else { secD.style.display = 'none'; }
+            if(settings.deliveryActive) {
+                if(delRadio) delRadio.style.display = 'inline-block';
+                if(settings.deliveryNumbers && settings.deliveryNumbers.trim() !== '') {
+                    let nums = settings.deliveryNumbers.split(',');
+                    let html = '';
+                    nums.forEach(n => {
+                        let clean = n.trim().replace(/[^\\d]/g, '');
+                        html += '<a href="tel:' + clean + '" class="del-btn">📞 ' + n.trim() + '</a>';
+                    });
+                    document.getElementById('buttons-delivery').innerHTML = html;
+                    secD.style.display = 'block'; hasContent = true;
+                } else {
+                    secD.style.display = 'none';
+                }
+            } else { 
+                secD.style.display = 'none'; 
+                if(delRadio) {
+                    delRadio.style.display = 'none';
+                    document.querySelector('input[name="recv-method"][value="pickup"]').checked = true;
+                    toggleAddressField();
+                }
+            }
 
             if(hasContent) {
                 toggleContainer.style.display = 'block';
-                panel.style.display = 'none'; // نبقيها مخفية افتراضياً لتوفير المساحة
+                panel.style.display = 'none'; 
                 btn.innerHTML = 'ℹ️ عرض تفاصيل الدفع والتوصيل ⬇️';
             } else {
                 toggleContainer.style.display = 'none';
@@ -1656,6 +1732,24 @@
             });
             document.getElementById('cartItemsContainer').innerHTML = html;
             document.getElementById('cartTotalDisplay').innerText = "الإجمالي: " + total.toFixed(2) + " د.ل";
+            
+            // حقن خيارات الدفع الخاصة بالفرع
+            let payContainer = document.getElementById('payment-container');
+            let settings = globalBranchSettings[currentBranchId];
+            if (settings && settings.payments && settings.payments.length > 0) {
+                let payHtml = '';
+                settings.payments.forEach((p, idx) => {
+                    payHtml += '<label style="cursor:pointer; display:flex; align-items:center; gap:3px;"><input type="radio" name="pay-method" value="' + p + '" ' + (idx === 0 ? 'checked' : '') + '> ' + p + '</label>';
+                });
+                payContainer.innerHTML = payHtml;
+                document.getElementById('toggle-payment').disabled = false;
+            } else {
+                payContainer.innerHTML = '<span style="color:#c0392b;">لا توجد طرق دفع مسجلة لهذا الفرع حالياً.</span>';
+                document.getElementById('toggle-payment').disabled = true;
+                document.getElementById('toggle-payment').checked = false;
+                togglePaymentField();
+            }
+
             document.getElementById('cartModal').style.display = 'flex';
         }
 
@@ -1665,7 +1759,35 @@
         function sendCartWA() {
             if(!currentBranchPhone) { alert("الرجاء اختيار الفرع أولاً من أعلى الشاشة!"); return; }
             
+            let cName = document.getElementById('cust-name').value.trim() || 'زبون';
+            let cPhone = document.getElementById('cust-phone').value.trim();
+            let rMethod = document.querySelector('input[name="recv-method"]:checked').value;
+            let cAddress = document.getElementById('cust-address').value.trim();
+
+            if(!cPhone) { alert("الرجاء إدخال رقم الهاتف لإتمام الطلب والتواصل معك!"); return; }
+            if(rMethod === 'delivery' && !cAddress) { alert("الرجاء كتابة تفاصيل العنوان لتوصيل الطلب إليك!"); return; }
+
+            let selectedPay = "";
+            if (document.getElementById('toggle-payment').checked && !document.getElementById('toggle-payment').disabled) {
+                let payRadio = document.querySelector('input[name="pay-method"]:checked');
+                if (payRadio) selectedPay = payRadio.value;
+            }
+
             let total = 0; let msg = "مرحباً حلواني أبناء الفايدي، أود طلب:\\n\\n";
+            
+            msg += "👤 *الاسم:* " + cName + "\\n";
+            msg += "📞 *الرقم:* " + cPhone + "\\n";
+            if(rMethod === 'delivery') {
+                msg += "🚚 *الاستلام:* توصيل للمنزل\\n";
+                msg += "📍 *العنوان:* " + cAddress + "\\n";
+            } else {
+                msg += "🚶‍♂️ *الاستلام:* من الفرع شخصياً\\n";
+            }
+            if (selectedPay !== "") {
+                msg += "💳 *طريقة الدفع:* " + selectedPay + "\\n";
+            }
+            msg += "====================\\n\\n";
+
             myCart.forEach(item => {
                 let itemTotal = item.price * item.qty; total += itemTotal;
                 msg += "🛒 *" + item.name + "*\\nرقم الصنف: " + item.code + "\\nالكمية: " + item.qty + " " + item.unit + "\\nالسعر: " + itemTotal.toFixed(2) + " د.ل\\n";
@@ -1675,8 +1797,14 @@
             msg += "\\n💰 *الإجمالي الكلي التقريبي: " + total.toFixed(2) + " د.ل*\\n";
             
             const now = new Date();
+
+            dbTracker.ref('Customers_CRM/' + cPhone).once('value').then(snap => {
+                let count = snap.exists() ? (snap.val().orderCount || 0) + 1 : 1;
+                dbTracker.ref('Customers_CRM/' + cPhone).set({ name: cName, phone: cPhone, orderCount: count, lastOrderDate: now.toISOString() });
+            }).catch(()=>{});
+
             let promises = myCart.map(item => {
-                return dbTracker.ref('analytics/whatsapp_clicks').push({ timestamp: now.toISOString(), date: now.toLocaleDateString('ar-EG'), time: now.toLocaleTimeString('ar-EG'), itemName: item.name, itemCode: item.code, itemPrice: item.price, quantity: item.qty, branchName: currentBranchName });
+                return dbTracker.ref('analytics/whatsapp_clicks').push({ timestamp: now.toISOString(), date: now.toLocaleDateString('ar-EG'), time: now.toLocaleTimeString('ar-EG'), itemName: item.name, itemCode: item.code, itemPrice: item.price, quantity: item.qty, branchName: currentBranchName, customerPhone: cPhone });
             });
 
             Promise.all(promises).then(() => { window.open("https://wa.me/" + currentBranchPhone + "?text=" + encodeURIComponent(msg), "_blank"); myCart = []; updateCartUI(); closeCartModal();
@@ -1691,7 +1819,7 @@
             link.href = URL.createObjectURL(blob);
             link.download = isCompressed ? "منيو_الفايدي_الزبائن.html" : "منيو_جودة_عالية.html";
             link.click();
-            alert("✅ تم التصدير بنجاح! المنيو تم تجهيزه بنظام سلة المشتريات واللوحة الحية للفروع.");
+            alert("✅ تم التصدير بنجاح! المنيو تم تجهيزه بشاشة الترحيب وتذييل القيم وسلة التوصيل المدمجة.");
         }
 
         function compressImageAsync(base64Str, maxWidth = 350, quality = 0.4) { 
