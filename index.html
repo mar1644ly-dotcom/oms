@@ -11,14 +11,13 @@
     
     <style>
         :root {
-            --primary: #5A0E1A; /* ألوان الفايدي الافتراضية لحين تحميل السحابة */
+            --primary: #5A0E1A; 
             --secondary: #D4AF37;
             --bg: #EADCC1;
         }
         body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; transition: 0.3s; }
         
-        /* شاشة التحميل الأولية */
-        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; box-sizing: border-box; }
         .loader { border: 6px solid #f3f3f3; border-top: 6px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -56,23 +55,18 @@
 </head>
 <body>
 
-    <!-- شاشة التحميل -->
     <div id="loading-screen">
         <div class="loader"></div>
-        <h3 style="color:var(--primary); margin-top:15px;">جاري تحميل أشهى الأصناف...</h3>
+        <h3 style="color:var(--primary); margin-top:15px; font-weight:900;">⏳ جاري دفق قائمة الأصناف سحابياً...</h3>
     </div>
 
-    <div class="top-bar" id="menu-header">
-        <!-- سيتم حقن الشعار أو الاسم هنا برمجياً -->
-    </div>
-    
+    <div class="top-bar" id="menu-header"></div>
     <div class="filter-container" id="catButtonsContainer"></div>
     <div id="dormant-msg" class="dormant-msg">الرجاء اختيار الفرع الأقرب إليك من الأعلى لعرض الأصناف 👆</div>
     <div class="grid dormant" id="menu-grid"></div>
 
     <div class="cart-float" id="cartFloat" onclick="openCartModal()">🛒 السلة (<span id="cartBadge">0</span>)</div>
 
-    <!-- نافذة تحديد الكمية -->
     <div id="modal">
         <div class="modal-content">
             <h3 id="modalDesc" style="color: var(--primary); margin-top: 0;"></h3>
@@ -83,7 +77,6 @@
         </div>
     </div>
 
-    <!-- نافذة السلة -->
     <div id="cartModal">
         <div class="modal-content" style="max-height:85vh; overflow-y:auto;">
             <h3 style="color:var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-top:0;">🛒 مراجعة السلة</h3>
@@ -108,7 +101,6 @@
         </div>
     </div>
 
-    <!-- شاشة التتبع السحابية -->
     <div id="waiting-modal">
         <div class="loader" id="waiting-spinner" style="margin-bottom:20px;"></div>
         <div class="order-status-box">
@@ -125,7 +117,6 @@
         firebase.initializeApp({ databaseURL: "https://faidy-web-app-default-rtdb.firebaseio.com", projectId: "faidy-web-app" });
         const dbCloud = firebase.database();
         
-        // 💡 إعدادات العميل (سيعمل هذا الملف حالياً لشركة الفايدي مباشرة)
         const TARGET_COMPANY_ID = 'faidy';
         const ROOT_PATH = 'OMS_SAAS_V1/Companies/' + TARGET_COMPANY_ID + '/';
         
@@ -134,65 +125,92 @@
         let myCart = []; 
         let currentOrderId = null;
         let menuItemsGlobal = [];
+        let uniqueCategories = new Set();
 
-        // 💡 جلب البيانات من السحابة عند فتح الرابط
-        dbCloud.ref(ROOT_PATH).once('value').then(snap => {
+        // جلب الإعدادات والهوية البصرية الأولية
+        dbCloud.ref(ROOT_PATH + 'settings').once('value').then(snap => {
             if(snap.exists()) {
-                let data = snap.val();
-                let settings = data.settings || {};
-                let itemsObj = data.items || [];
-                
-                // تطبيق الألوان
+                let settings = snap.val();
                 if(settings.branding) {
                     document.documentElement.style.setProperty('--primary', settings.branding.primaryColor);
                     document.documentElement.style.setProperty('--secondary', settings.branding.secondaryColor);
                     document.documentElement.style.setProperty('--bg', settings.branding.bgColor);
                 }
 
-                // رسم الشريط العلوي والشعار
                 let headerHTML = '';
                 if(settings.branding && settings.branding.logo) {
-                    headerHTML += `<img src="${settings.branding.logo}" style="max-height: 60px; object-fit: contain;">`;
+                    headerHTML += `<img src="${settings.branding.logo}" style="max-height: 60px; object-fit: contain; margin-bottom: 10px;">`;
                 } else {
-                    headerHTML += `<h2 style="margin: 0; color: var(--secondary);">${settings.profile?.name || TARGET_COMPANY_ID}</h2>`;
+                    headerHTML += `<h2 style="margin: 0 0 10px 0; color: var(--secondary);">${settings.profile?.name || TARGET_COMPANY_ID}</h2>`;
                 }
 
-                // الفروع
                 let branches = settings.branches || [];
                 let branchOptions = '<option value="" disabled selected>-- الرجاء اختيار الفرع الأقرب إليك --</option>';
                 branches.forEach(b => { if(b) branchOptions += `<option value="${b.id}" data-phone="${b.phone}">${b.name}</option>`; });
                 headerHTML += `<select id="customerBranchSelect" onchange="activateMenu(this)">${branchOptions}</select>`;
                 document.getElementById('menu-header').innerHTML = headerHTML;
 
-                // الأصناف والأقسام
-                menuItemsGlobal = (Array.isArray(itemsObj) ? itemsObj : Object.values(itemsObj)).filter(i => i && i.selectedForMenu !== false);
-                
-                let uniqueCats = [...new Set(menuItemsGlobal.map(i => i.cat))];
-                let catBtns = `<button class="filter-btn active" onclick="filterByCat('all', this)">الكل</button>`;
-                uniqueCats.forEach(c => { catBtns += `<button class="filter-btn" onclick="filterByCat('${c}', this)">${c}</button>`; });
-                document.getElementById('catButtonsContainer').innerHTML = catBtns;
-
-                let cardsHTML = '';
-                menuItemsGlobal.forEach(item => {
-                    let imgData = item.img || 'https://via.placeholder.com/350x220?text=بدون+صورة';
-                    cardsHTML += `
-                        <div class="card" data-category="${item.cat}">
-                            <div class="code-tag">رقم: ${item.code || '000'}</div>
-                            <img src="${imgData}" loading="lazy">
-                            <h3 class="card-title">${item.name}</h3>
-                            <div class="card-price">${item.price} د.ل</div>
-                            <button class="order-btn" onclick="openQtyModal('${item.name.replace(/'/g,"\\'")}', '${item.code}', '${item.price}', ${item.id})">🛒 أضف للسلة</button>
-                        </div>`;
-                });
-                document.getElementById('menu-grid').innerHTML = cardsHTML;
-
-                // إخفاء شاشة التحميل بعد الانتهاء
-                document.getElementById('loading-screen').style.display = 'none';
-
-            } else {
-                document.getElementById('loading-screen').innerHTML = "<h3 style='color:red;'>الشركة غير مسجلة بالنظام</h3>";
+                startStreamingItems();
             }
         });
+
+        // دالة الدفق لمعالجة مشكلة الجمود والاختناق
+        function startStreamingItems() {
+            let itemsRef = dbCloud.ref(ROOT_PATH + 'items');
+            
+            // استقبال الأصناف تدفقياً ورسمها فوراً
+            itemsRef.on('child_added', (snapshot) => {
+                let item = snapshot.val();
+                if (item && item.selectedForMenu !== false) {
+                    menuItemsGlobal.push(item);
+                    renderSingleItem(item);
+                    updateCategoryButtons(item.cat);
+                }
+            });
+
+            // إخفاء شاشة التحميل بعد انتهاء تدفق الحزمة الأولية بالكامل
+            itemsRef.once('value', () => {
+                document.getElementById('loading-screen').style.display = 'none';
+            });
+        }
+
+        function renderSingleItem(item) {
+            let grid = document.getElementById('menu-grid');
+            let card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('data-id', item.id);
+            card.setAttribute('data-category', item.cat);
+            
+            let imgData = item.img || 'https://via.placeholder.com/350x220?text=بدون+صورة';
+            card.innerHTML = `
+                <div class="code-tag">رقم: ${item.code || '000'}</div>
+                <img src="${imgData}" loading="lazy" onerror="this.src='https://via.placeholder.com/350x220?text=خطأ+في+الصورة'">
+                <h3 class="card-title">${item.name}</h3>
+                <div class="card-price">${item.price} د.ل</div>
+                <button class="order-btn" onclick="openQtyModal('${item.name.replace(/'/g,"\\'")}', '${item.code}', '${item.price}', ${item.id})">🛒 أضف للسلة</button>
+            `;
+            grid.appendChild(card);
+            
+            if (window.currentFilter && window.currentFilter !== 'all' && item.cat !== window.currentFilter) {
+                card.style.display = 'none';
+            }
+        }
+
+        function updateCategoryButtons(categoryName) {
+            if (!categoryName || uniqueCategories.has(categoryName)) return;
+            uniqueCategories.add(categoryName);
+            
+            let btnContainer = document.getElementById('catButtonsContainer');
+            if (uniqueCategories.size === 1) {
+                btnContainer.innerHTML = `<button class="filter-btn active" onclick="filterByCat('all', this)">الكل</button>`;
+            }
+            
+            let btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.innerText = categoryName;
+            btn.onclick = function() { filterByCat(categoryName, this); };
+            btnContainer.appendChild(btn);
+        }
 
         function activateMenu(sel) {
             sel.blur();
@@ -208,16 +226,17 @@
         }
 
         function filterByCat(c, btn) {
+            window.currentFilter = c;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
             document.querySelectorAll('.card').forEach(card => {
-                card.style.display = (c === 'all' || card.dataset.category === c) ? 'block' : 'none';
+                card.style.display = (c === 'all' || card.getAttribute('data-category') === c) ? 'block' : 'none';
             });
         }
 
         function openQtyModal(n,c,p,id) { 
             window.tempItem = {id:id, name:n, code:c, price:parseFloat(p), qty:1}; 
-            document.getElementById('modalDesc').innerText = n + "\\n(" + p + " د.ل)"; 
+            document.getElementById('modalDesc').innerText = n + "\n(" + p + " د.ل)"; 
             document.getElementById('qty-input').value = 1; 
             document.getElementById('modal').style.display = 'flex'; 
         }
@@ -281,7 +300,7 @@
             };
 
             document.getElementById('cartModal').style.display = 'none';
-            showWaitingModal("⏳ جاري مراجعة طلبك...", "ننتظر تأكيد موظف الفرع لتوافر الأصناف.", true);
+            showWaitingModal("⏳ جاري إرسال طلبك للفرع...", "ننتظر تأكيد موظف الكاشير لتوافر الأصناف.", true);
 
             let orderRef = dbCloud.ref(ROOT_PATH + 'Live_Orders/' + currentBranchId + '/' + currentOrderId);
             orderRef.set(orderData).then(() => {
@@ -304,9 +323,9 @@
 
         function handleOrderDecision(data) {
             if(data.status === 'accepted') {
-                showWaitingModal("👨‍🍳 تم قبول الطلب!", "طلبك قيد التجهيز الآن. (رقم: " + data.id + ")", true);
+                showWaitingModal("👨‍🍳 تم قبول الطلب!", "طلبك قيد التجهيز الآن في الفرع. (رقم: " + data.id + ")", true);
             } else if (data.status === 'completed') {
-                let msg = data.customer.method === 'delivery' ? "طلبك مع المندوب وفي الطريق إليك! 🛵" : "طلبك جاهز! تفضل لاستلامه. 🚶‍♂️";
+                let msg = data.customer.method === 'delivery' ? "طلبك مع المندوب وفي الطريق إليك! 🛵" : "طلبك جاهز! تفضل لاستلامه من الفرع. 🚶‍♂️";
                 showWaitingModal("🎉 طلبك جاهز!", msg + "\n(رقم: " + data.id + ")", false);
                 document.getElementById('btn-contact-cs').style.display = 'block';
                 document.getElementById('btn-new-order').style.display = 'block';
