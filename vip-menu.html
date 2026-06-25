@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>حلواني الفايدي - القائمة الذهبية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- مكتبات فايربيز -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap');
+        
+        :root { 
+            --gold: #D4AF37; 
+            --gold-light: #f3d56a;
+            --dark-bg: #0a0002; 
+            --card-bg: #1a0508; 
+            --text-light: #fdfbf7; 
+        }
+        
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: var(--dark-bg); 
+            color: var(--text-light);
+            margin: 0; 
+            padding-bottom: 50px; 
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vip-header { 
+            background: rgba(10, 0, 2, 0.95); 
+            padding: 20px 10px 10px 10px; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-text {
+            color: var(--gold);
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .sub-text {
+            color: #aaa;
+            font-size: 13px;
+            font-weight: 300;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .category-filters { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 15px; 
+            padding: 10px 20px; 
+            scrollbar-width: none; 
+        }
+        .category-filters::-webkit-scrollbar { display: none; }
+        
+        .filter-btn { 
+            padding: 8px 25px; 
+            background: transparent; 
+            color: #888; 
+            border: 1px solid #444; 
+            border-radius: 30px; 
+            font-family: 'Cairo'; 
+            font-weight: 400; 
+            cursor: pointer; 
+            transition: all 0.4s ease; 
+            font-size: 15px; 
+            white-space: nowrap;
+        }
+        .filter-btn.active, .filter-btn:hover { 
+            background: var(--gold); 
+            color: var(--dark-bg); 
+            border-color: var(--gold);
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 30px; 
+            padding: 30px 20px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; 
+            flex-direction: column; 
+            animation: fadeUp 0.8s ease-out forwards;
+            opacity: 0; 
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.15);
+        }
+        
+        .image-container { 
+            width: 100%; 
+            height: 280px; 
+            background: #111; 
+            overflow: hidden; 
+            position: relative;
+            cursor: pointer; /* مؤشر الماوس يدل على قابلية النقر */
+        }
+        .image-container img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.7s ease;
+        }
+        .card:hover .image-container img {
+            transform: scale(1.05); 
+        }
+        
+        .card-details { 
+            padding: 25px 20px; 
+            text-align: center; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+        }
+        
+        .item-name { 
+            font-family: 'Cairo'; 
+            font-weight: 900; 
+            font-size: 22px; 
+            color: var(--gold-light); 
+            margin: 0 0 15px 0; 
+        }
+        
+        .item-variants { 
+            font-size: 15px; 
+            color: #ddd; 
+            line-height: 1.8; 
+            font-weight: 300;
+        }
+        
+        .variant-item {
+            display: inline-block;
+            margin: 0 5px;
+        }
+        .variant-price {
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        #loading-overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: var(--dark-bg); 
+            z-index: 9999; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .spinner { 
+            border: 3px solid rgba(212, 175, 55, 0.2); 
+            border-top: 3px solid var(--gold); 
+            border-radius: 50%; 
+            width: 60px; height: 60px; 
+            animation: spin 1s linear infinite; 
+            margin-bottom: 20px; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ---------------- التصميم السينمائي للصورة (Lightbox) ---------------- */
+        .lightbox {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 0, 2, 0.85); /* خلفية داكنة جداً مع شفافية */
+            backdrop-filter: blur(15px); /* عزل الشاشة بضبابية */
+            z-index: 100000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .lightbox-content {
+            text-align: center;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+            width: 600px;
+        }
+        .lightbox.active .lightbox-content {
+            transform: scale(1);
+        }
+        /* الهالة الذهبية النابضة خلف الصورة */
+        .lightbox-glow {
+            position: absolute;
+            top: 40%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; height: 60%;
+            background: var(--gold);
+            filter: blur(100px);
+            opacity: 0;
+            z-index: -1;
+            animation: pulseGlow 3s infinite alternate;
+        }
+        .lightbox.active .lightbox-glow {
+            opacity: 0.3;
+        }
+        @keyframes pulseGlow {
+            0% { transform: translate(-50%, -50%) scale(0.9); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        .lightbox img {
+            max-width: 100%;
+            max-height: 55vh;
+            object-fit: contain; /* للمحافظة على أبعاد الصنف بالكامل دون قص */
+            border-radius: 16px;
+            border: 2px solid var(--gold);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+            margin-bottom: 25px;
+        }
+        .lightbox h2 {
+            font-family: 'Cairo';
+            color: var(--gold-light);
+            font-size: 34px;
+            font-weight: 900;
+            margin: 0 0 15px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease 0.3s;
+        }
+        .lightbox .item-variants {
+            font-size: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease 0.4s;
+        }
+        .lightbox.active h2, .lightbox.active .item-variants {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة التحميل -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h3 style="color:var(--gold); font-family:'Cairo'; font-weight:300; letter-spacing: 2px;">تجهيز قائمة العرض...</h3>
+    </div>
+
+    <!-- الترويسة الذهبية -->
+    <div class="vip-header">
+        <h1 class="logo-text">حـلـوانـي أبنـاء الفـايـدي</h1>
+        <div class="sub-text">EXCELLENCE IN EVERY BITE</div>
+        
+        <div class="category-filters" id="categoryFilters"></div>
+    </div>
+
+    <!-- مسرح عرض الأصناف -->
+    <div class="grid" id="main-grid"></div>
+
+    <!-- نافذة العرض السينمائي (مخفية بشكل افتراضي) -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <div class="lightbox-glow"></div>
+            <img id="lb-img" src="" alt="صنف فاخر">
+            <h2 id="lb-title"></h2>
+            <div id="lb-variants" class="item-variants"></div>
+        </div>
+    </div>
+
+    <script>
+        firebase.initializeApp({ databaseURL: "https://faidy-web-app-default-rtdb.firebaseio.com", projectId: "faidy-web-app" });
+        const dbCloud = firebase.database();
+        const CLOUD_PATH = 'FAIDY_OMS_V2/Central_Items';
+        
+        let allItems = [];
+        let categories = [];
+        let activeFilter = 'الكل'; 
+        
+        window.onload = async () => {
+            try {
+                const snap = await dbCloud.ref(CLOUD_PATH).once('value');
+                if(snap.exists()) {
+                    let data = Object.values(snap.val());
+                    allItems = data.filter(item => item.active !== false);
+                    categories = [...new Set(allItems.map(i => i.cat))];
+                }
+            } catch (e) {
+                console.error("خطأ في الاتصال: ", e);
+            } finally {
+                document.getElementById('loading-overlay').style.opacity = '0';
+                setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 500);
+                
+                renderCategoryFilters();
+                renderItemsUI();
+            }
+        };
+
+        function renderCategoryFilters() {
+            let filterContainer = document.getElementById('categoryFilters');
+            filterContainer.innerHTML = '';
+            
+            filterContainer.innerHTML += `<button class="filter-btn ${activeFilter === 'الكل' ? 'active' : ''}" onclick="setFilter('الكل')">القائمة الكاملة</button>`;
+            
+            categories.forEach(cat => {
+                filterContainer.innerHTML += `<button class="filter-btn ${activeFilter === cat ? 'active' : ''}" onclick="setFilter('${cat}')">${cat}</button>`;
+            });
+        }
+
+        function setFilter(cat) {
+            activeFilter = cat;
+            renderCategoryFilters();
+            renderItemsUI();
+        }
+
+        function renderItemsUI() {
+            let grid = document.getElementById('main-grid');
+            grid.innerHTML = '';
+            
+            let filteredItems = allItems.filter(item => activeFilter === 'الكل' || item.cat === activeFilter);
+            filteredItems.sort((a, b) => b.id - a.id);
+
+            filteredItems.forEach((item, index) => {
+                let githubImageUrl = `https://mar1644ly-dotcom.github.io/oms/Images/${item.id}.jpg`;
+                let fallbackImage = `https://via.placeholder.com/600x600/1a0508/D4AF37?text=الفايدي`;
+                
+                let variantsText = '';
+                if (item.variants && Array.isArray(item.variants) && item.variants.length > 0) {
+                    let formattedVariants = item.variants.map(v => 
+                        `<span class="variant-item">${v.name} <span class="variant-price">(${v.price} د.ل)</span></span>`
+                    );
+                    variantsText = formattedVariants.join(' <span style="color:#555;">|</span> ');
+                } else {
+                    let price = item.price || 0;
+                    let unit = item.unit || 'قطعة';
+                    variantsText = `<span class="variant-item">${unit} <span class="variant-price">(${price} د.ل)</span></span>`;
+                }
+
+                let animationDelay = (index * 0.1) + 's';
+
+                // أضفنا دالة openLightbox عند النقر على حاوية الصورة
+                let cardHtml = `
+                <div class="card" style="animation-delay: ${animationDelay};">
+                    <div class="image-container" onclick="openLightbox(${item.id})">
+                        <img src="${githubImageUrl}" onerror="this.onerror=null; this.src='${fallbackImage}'" alt="${item.name}">
+                    </div>
+                    
+                    <div class="card-details">
+                        <h2 class="item-name">${item.name}</h2>
+                        <div class="item-variants">
+                            ${variantsText}
+                        </div>
+                    </div>
+                </div>`;
+                
+                grid.innerHTML += cardHtml;
+            });
+            
+            if(filteredItems.length === 0) {
+                grid.innerHTML = `<h3 style="text-align:center; color:#888; width:100%; grid-column: 1 / -1; font-weight:300;">لا توجد أصناف معروضة في هذا القسم حالياً.</h3>`;
+            }
+        }
+
+        // ---------------- دوال العرض السينمائي (Lightbox) ---------------- //
+        function openLightbox(id) {
+            // البحث عن الصنف لتجهيز بياناته
+            let item = allItems.find(i => i.id === id);
+            if(!item) return;
+
+            let githubImageUrl = `https://mar1644ly-dotcom.github.io/oms/Images/${item.id}.jpg`;
+            let fallbackImage = `https://via.placeholder.com/600x600/1a0508/D4AF37?text=الفايدي`;
+
+            // تمرير البيانات للشاشة السينمائية
+            let imgElement = document.getElementById('lb-img');
+            imgElement.src = githubImageUrl;
+            imgElement.onerror = function() { this.src = fallbackImage; };
+            
+            document.getElementById('lb-title').innerText = item.name;
+
+            // تجهيز نص الأسعار
+            let variantsText = '';
+            if (item.variants && Array.isArray(item.variants) && item.variants.length > 0) {
+                let formattedVariants = item.variants.map(v => 
+                    `<span class="variant-item">${v.name} <span class="variant-price">(${v.price} د.ل)</span></span>`
+                );
+                variantsText = formattedVariants.join(' <span style="color:#555;">|</span> ');
+            } else {
+                let price = item.price || 0;
+                let unit = item.unit || 'قطعة';
+                variantsText = `<span class="variant-item">${unit} <span class="variant-price">(${price} د.ل)</span></span>`;
+            }
+            document.getElementById('lb-variants').innerHTML = variantsText;
+
+            // إظهار الشاشة وقفل التمرير
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeLightbox() {
+            // إخفاء الشاشة وفتح التمرير
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto'; 
+            
+            // تفريغ الصورة بعد انتهاء الحركة لتجنب وميض في المرة القادمة
+            setTimeout(() => {
+                document.getElementById('lb-img').src = '';
+            }, 500);
+        }
+    </script>
+</body>
+</html>
