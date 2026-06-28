@@ -136,42 +136,103 @@
         }
         .card:hover .standard-img { transform: scale(1.05); }
 
-        .premium-plate-wrapper {
-            padding: 20px;
-            background: linear-gradient(135deg, #1a0508, #2a0810); 
-            display: flex; justify-content: center; align-items: center;
-            width: 100%; height: 100%; 
-            box-sizing: border-box;
-            transition: transform 0.7s ease;
-        }
-        .premium-plate-img {
-            width: 220px; height: 220px; 
-            border-radius: 50%;
-            object-fit: cover;
-            border: 8px solid var(--primary); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 0 3px var(--gold); 
-            background: #111;
-        }
-        .card:hover .premium-plate-wrapper { transform: scale(1.04); }
+        /* ======================================================================= */
+/* بداية أكواد "الطبق البيضاوي" و "السفرة" للمنيو الفاخر (VIP)             */
+/* ======================================================================= */
 
-        .premium-box-wrapper {
-            padding: 25px;
-            background: linear-gradient(135deg, #1a0508, #2a0810); 
-            display: flex; justify-content: center; align-items: center;
-            width: 100%; height: 100%; 
-            box-sizing: border-box;
-            transition: transform 0.7s ease;
-        }
-        .premium-box-img {
-            width: 100%; height: 100%;
-            border-radius: 12px; 
-            object-fit: cover;
-            border: 6px solid var(--primary); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 0 3px var(--gold); 
-            background: #111;
-        }
-        .card:hover .premium-box-wrapper { transform: scale(1.04); }
+/* 1. حاوية الطبق البيضاوي (خلفية الطاولة) */
+.premium-plate-wrapper {
+    /* مسافة داخلية بسيطة */
+    padding: 20px;
+    /* التدرج الفخم الذي اعتمدناه: من الفضي الفاتح إلى الأسود الملكي */
+    background: linear-gradient(135deg, #fdfbf7, #050505); 
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; height: 100%; 
+    box-sizing: border-box;
+    transition: transform 0.7s ease; /* حركة ناعمة */
+}
+
+/* 2. الطبق البيضاوي الممتد (Oval Plate) */
+.premium-plate-img {
+    /* العرض أكبر من الطول لصنع الامتداد البيضاوي */
+    width: 90%;          
+    max-width: 250px;    
+    height: 160px; /* تم رفع الطول قليلاً ليناسب حجم بطاقة المنيو الفاخر */
+    
+    /* شكل بيضاوي تام */
+    border-radius: 50%;
+    
+    /* إلغاء اللون الأبيض والمسافة لتتمدد صورة الحلوى بالكامل داخل الطبق */
+    background-color: transparent;
+    padding: 0; 
+    
+    /* ملء مساحة الطبق بالكامل وتوسيط المنتج (السر هنا) */
+    object-fit: cover;
+    object-position: center;
+    
+    /* إطارات المنيو الفاخر: العنابي والذهبي مع ظل قوي للبروز */
+    border: 4px solid var(--primary); 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 0 3px var(--gold); 
+}
+/* تأثير التكبير عند تمرير الماوس */
+.card:hover .premium-plate-wrapper { transform: scale(1.04); }
+
+/* ======================================================================= */
+
+/* 3. حاوية السفرة (خلفية الطاولة للبوكس) */
+.premium-box-wrapper {
+    padding: 25px;
+    /* نفس التدرج الفخم */
+    background: linear-gradient(135deg, #fdfbf7, #050505); 
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; height: 100%; 
+    box-sizing: border-box;
+    transition: transform 0.7s ease;
+}
+
+/* 4. السفرة الفاخرة الممتدة (Tray) */
+.premium-box-img {
+    width: auto; 
+    height: auto;
+    max-width: 95%; 
+    max-height: 85%;
+    border-radius: 25px; 
+    object-fit: cover;
+    object-position: center;
+    background-color: transparent;
+    padding: 0;
+    
+    /* --- السر التقني: تفعيل البعد الثالث (3D) وميل السفرة للخلف --- */
+    transform: perspective(800px) rotateX(25deg);
+    
+    /* تعديل الظل ليوحي بأن السفرة مرفوعة قليلاً وتلقي ظلاً حقيقياً على الطاولة */
+    box-shadow: 
+        0 40px 25px -15px rgba(0, 0, 0, 0.6), /* ظل سفلي عميق يلامس الطاولة */
+        0 0 0 2px var(--gold),                /* الإطار الذهبي */
+        0 0 0 4px var(--primary);             /* الإطار العنابي */
         
+    /* إطارات المنيو الفاخر الأساسية (في حال لم تستخدمها في الـ box-shadow) */
+    border: 4px solid var(--primary); 
+    
+    /* حركة ناعمة للتأثير */
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* تأثير التكبير والميل عند مرور الماوس لزيادة الواقعية */
+.card:hover .premium-box-img { 
+    /* نقلل زاوية الميل قليلاً عند وقوف الماوس لتبدو وكأنها ترتفع لعين الزبون */
+    transform: perspective(800px) rotateX(15deg) scale(1.05);
+    box-shadow: 
+        0 50px 30px -20px rgba(0, 0, 0, 0.8),
+        0 0 0 4px var(--gold),
+        0 0 0 8px var(--primary);
+}
+/* تأثير التكبير عند تمرير الماوس */
+.card:hover .premium-box-wrapper { transform: scale(1.04); }
+
+/* ======================================================================= */
+/* نهاية أكواد "الطبق البيضاوي" و "السفرة"                                 */
+/* ======================================================================= */        
         .card-details { 
             padding: 25px 20px; 
             text-align: center; 
