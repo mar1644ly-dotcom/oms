@@ -44,6 +44,22 @@
         }
         .branch-selector option { color: var(--text-dark); }
         
+        /* تصميم شارة حالة الفرع (الوميض) */
+        .status-badge {
+            font-size: 13px; padding: 6px; border-radius: 8px; font-weight: 900;
+            display: inline-block; margin-top: 8px; font-family: 'Cairo'; border: 1px solid;
+            transition: all 0.3s ease; text-align: center; width: 100%; box-sizing: border-box;
+        }
+        @keyframes pulseOffline {
+            0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            50% { opacity: 0.9; transform: scale(1.02); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        .offline-pulse {
+            animation: pulseOffline 2s infinite ease-in-out;
+            font-size: 14px;
+        }
+
         .search-box {
             width: 100%; padding: 12px 15px; border-radius: 30px; border: none; font-family: 'Cairo'; font-weight: bold;
             box-sizing: border-box; outline: none; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -66,7 +82,7 @@
 
         .filter-container { 
             display: flex; overflow-x: auto; gap: 8px; padding: 10px 15px; 
-            background: var(--bg); position: sticky; top: 110px; z-index: 99; scrollbar-width: none; border-bottom: 1px solid #eee;
+            background: var(--bg); position: sticky; top: 125px; z-index: 99; scrollbar-width: none; border-bottom: 1px solid #eee;
         }
         .filter-container::-webkit-scrollbar { display: none; }
         .filter-btn { 
@@ -89,33 +105,23 @@
         
         .standard-img { width: 100%; height: 130px; object-fit: cover; border-radius: 12px; background: #faf8f5; }
         
-        /* تصميم الطبق البيضاوي لمنيو المبيعات */
         .premium-plate-wrapper {
-            padding: 10px;
-            background: linear-gradient(135deg, #fdfbf7, #050505); 
-            display: flex; justify-content: center; align-items: center;
-            height: 130px; border-radius: 12px; margin-bottom: 8px;
+            padding: 10px; background: linear-gradient(135deg, #fdfbf7, #050505); 
+            display: flex; justify-content: center; align-items: center; height: 130px; border-radius: 12px; margin-bottom: 8px;
         }
         .premium-plate-img {
-            width: 95%; max-width: 140px; height: 95px; 
-            border-radius: 50%; object-fit: contain; object-position: center;
-            background-color: transparent; padding: 0;
-            border: 3px solid var(--primary); 
+            width: 95%; max-width: 140px; height: 95px; border-radius: 50%; object-fit: contain; object-position: center;
+            background-color: transparent; padding: 0; border: 3px solid var(--primary); 
             box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 0 2px var(--secondary); 
         }
 
-        /* تصميم السفرة 3D لمنيو المبيعات */
         .premium-box-wrapper {
-            padding: 15px 10px;
-            background: linear-gradient(135deg, #fdfbf7, #050505); 
-            display: flex; justify-content: center; align-items: center;
-            height: 130px; border-radius: 12px; margin-bottom: 8px; box-sizing: border-box;
+            padding: 15px 10px; background: linear-gradient(135deg, #fdfbf7, #050505); 
+            display: flex; justify-content: center; align-items: center; height: 130px; border-radius: 12px; margin-bottom: 8px; box-sizing: border-box;
         }
         .premium-box-img {
-            width: auto; height: auto; max-width: 95%; max-height: 85%;
-            border-radius: 15px; object-fit: contain; object-position: center;
-            background-color: transparent; padding: 0;
-            transform: perspective(600px) rotateX(20deg);
+            width: auto; height: auto; max-width: 95%; max-height: 85%; border-radius: 15px; object-fit: contain; object-position: center;
+            background-color: transparent; padding: 0; transform: perspective(600px) rotateX(20deg);
             box-shadow: 0 25px 15px -10px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--secondary), 0 0 0 4px var(--primary);
         }
 
@@ -188,7 +194,8 @@
             width: 100%; border-radius: 8px; font-family: 'Cairo'; font-weight: bold; cursor: pointer; margin-top: 10px;
         }
 
-        .branch-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; background: #faf8f5; }
+        .branch-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; background: #faf8f5; cursor: pointer; transition: 0.2s;}
+        .branch-item:hover { background: #f0ece1; }
         .branch-info h4 { margin: 0 0 5px 0; color: var(--primary); }
         .branch-info p { margin: 0; font-size: 12px; color: #666; }
 
@@ -198,12 +205,6 @@
         
         .status-box { background: rgba(255,255,255,0.1); border: 2px dashed var(--secondary); padding: 30px 20px; border-radius: 12px; max-width: 400px; width: 90%; }
         #status-icon { font-size: 60px; margin-bottom: 15px; display: none; }
-        
-        .status-badge {
-            font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: bold;
-            display: inline-block; margin-top: 8px; font-family: 'Cairo'; border: 1px solid;
-            transition: all 0.3s ease;
-        }
     </style>
 </head>
 <body>
@@ -270,27 +271,7 @@
             <button class="close-sheet" onclick="closeBranchesSheet()">×</button>
         </div>
         <div id="branchesContainer" style="max-height: 60vh; overflow-y: auto;">
-            <div class="branch-item">
-                <div class="branch-info"><h4>فرع السلماني</h4><p>بنغازي - السلماني</p></div>
-                <div style="font-size:20px;">🏪</div>
             </div>
-            <div class="branch-item">
-                <div class="branch-info"><h4>فرع فينيسيا</h4><p>بنغازي - فينيسيا</p></div>
-                <div style="font-size:20px;">🏪</div>
-            </div>
-            <div class="branch-item">
-                <div class="branch-info"><h4>فرع شارع 20</h4><p>بنغازي - شارع 20</p></div>
-                <div style="font-size:20px;">🏪</div>
-            </div>
-            <div class="branch-item">
-                <div class="branch-info"><h4>فرع طريق المطار</h4><p>بنغازي - طريق المطار</p></div>
-                <div style="font-size:20px;">🏪</div>
-            </div>
-            <div class="branch-item">
-                <div class="branch-info"><h4>فرع بوعطني</h4><p>بنغازي - بوعطني</p></div>
-                <div style="font-size:20px;">🏪</div>
-            </div>
-        </div>
     </div>
 
     <div id="cartModal">
@@ -334,7 +315,7 @@
             <p id="waiting-desc">الطلب في طريقه لفرعنا، يرجى الانتظار لحين تأكيد الموظف ولا تقم بإغلاق الصفحة.</p>
         </div>
         <button id="btn-wa-link" class="btn-action" style="background:#25D366; color:#fff; display:none; margin-top:15px; width:90%;" onclick="openWhatsApp()">تواصل مع الفرع (واتساب) 💬</button>
-        <button id="btn-close-waiting" class="btn-action" style="background:#333; color:#fff; display:none; margin-top:10px; width:90%;" onclick="location.reload()">رجوع للمنيو 🔙</button>
+        <button id="btn-close-waiting" class="btn-action" style="background:#333; color:#fff; display:none; margin-top:10px; width:90%;">رجوع للمنيو 🔙</button>
     </div>
 
     <audio id="bell-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
@@ -353,28 +334,37 @@
         let tempItemData = null;
         let activeOrderId = null;
         
-        // متغيرات المراقبة الحية
         let branchPresenceRef = null;
         let isBranchOnline = true;
         let currentBranchStock = {}; 
         let branchStockRef = null;   
 
+        // جلب الفروع (للهيدر + القائمة السفلية معاً)
         window.onload = () => {
             dbCloud.ref('OMS_SAAS_V1/Companies/faidy/settings/branches').once('value').then(snap => {
                 let sel = document.getElementById('customerBranchSelect');
+                let branchesContainer = document.getElementById('branchesContainer');
+                
                 if(snap.exists()) {
                     let branches = snap.val() || [];
                     sel.innerHTML = '<option value="" disabled selected>تحديد الفرع 🔽</option>';
-                    branches.forEach(b => { if(b) sel.innerHTML += `<option value="${b.id}" data-phone="${b.phone}">${b.name}</option>`; });
-                } else {
-                    sel.innerHTML = `
-                        <option value="" disabled selected>تحديد الفرع 🔽</option>
-                        <option value="salmani" data-phone="218900000000">السلماني</option>
-                        <option value="venice" data-phone="218900000000">فينيسيا</option>
-                        <option value="st20" data-phone="218900000000">شارع 20</option>
-                        <option value="airport" data-phone="218900000000">طريق المطار</option>
-                        <option value="buatni" data-phone="218900000000">بوعطني</option>
-                    `;
+                    branchesContainer.innerHTML = ''; 
+                    
+                    branches.forEach(b => { 
+                        if(b) {
+                            sel.innerHTML += `<option value="${b.id}" data-phone="${b.phone}">${b.name}</option>`;
+                            
+                            // قائمة الفروع أصبحت حقيقية ومفيدة
+                            branchesContainer.innerHTML += `
+                            <div class="branch-item" onclick="selectBranchFromSheet('${b.id}')">
+                                <div class="branch-info">
+                                    <h4 style="margin: 0 0 5px 0; color: var(--primary);">${b.name}</h4>
+                                    <p style="margin: 0; font-size: 12px; color: #666;">انقر لاختيار وتفعيل هذا الفرع 👈</p>
+                                </div>
+                                <div style="font-size:24px;">🏪</div>
+                            </div>`;
+                        }
+                    });
                 }
             });
 
@@ -390,6 +380,14 @@
             loadCustomerData();
         };
 
+        // دالة ربط اختيار الفرع من القائمة السفلية
+        function selectBranchFromSheet(branchId) {
+            let sel = document.getElementById('customerBranchSelect');
+            sel.value = branchId;
+            activateMenu(sel);
+            closeBranchesSheet();
+        }
+
         function monitorBranchPresence(branchId) {
             if(branchPresenceRef) branchPresenceRef.off(); 
             branchPresenceRef = dbCloud.ref('FAIDY_OMS_V2/Branch_Presence/' + branchId + '/online');
@@ -399,17 +397,21 @@
                 
                 let badge = document.getElementById('branch-status-badge');
                 let orderBtn = document.getElementById('checkout-btn');
-                badge.style.display = 'inline-block';
+                badge.style.display = 'block'; 
                 
                 if(isBranchOnline) {
                     badge.innerHTML = '🟢 الفرع متاح للطلبات';
+                    badge.className = 'status-badge';
                     badge.style.background = '#e8f5e9'; badge.style.color = '#2e7d32'; badge.style.borderColor = '#c8e6c9';
                     if(orderBtn) { orderBtn.disabled = false; orderBtn.style.background = '#27ae60'; orderBtn.innerText = '🚀 اعتماد وإرسال الطلب'; }
                 } else {
-                    badge.innerHTML = '🔴 الفرع لا يستقبل طلبات';
-                    badge.style.background = '#ffeaea'; badge.style.color = '#e74c3c'; badge.style.borderColor = '#ffcccc';
+                    // الخيار الثاني المطور: تمدد بعرض الشاشة مع حركة الوميض (Pulse)
+                    badge.innerHTML = '🔴 الفرع مغلق الان(للمشاهدة فقط الى حين فتح الفرع يتم تفعيل الطلبات)';
+                    badge.className = 'status-badge offline-pulse';
+                    badge.style.background = '#ffeaea'; badge.style.color = '#e74c3c'; badge.style.borderColor = '#e74c3c';
                     if(orderBtn) { orderBtn.disabled = true; orderBtn.style.background = '#95a5a6'; orderBtn.innerText = 'الفرع مغلق حالياً 🚫'; }
                 }
+                if(allItems.length > 0) renderMenu(); 
             });
 
             if(branchStockRef) branchStockRef.off();
@@ -472,10 +474,14 @@
 
                 let isAvailable = currentBranchStock[item.id] !== false; 
                 let actionBtnHtml = '';
-                if(isAvailable) {
+                
+                // منع التفاعل كلياً إذا كان الفرع مغلق أو الصنف نافذ
+                if(!isBranchOnline) {
+                    actionBtnHtml = `<button class="order-btn" style="background:#f2f2f2; color:#a4b0be; cursor:not-allowed;" disabled>الفرع مغلق 🚫</button>`;
+                } else if(isAvailable) {
                     actionBtnHtml = `<button class="order-btn" onclick="openVariantSheet(${item.id})">اختر الحجم والكمية ➕</button>`;
                 } else {
-                    actionBtnHtml = `<button class="order-btn" style="background:#f2f2f2; color:#a4b0be; cursor:not-allowed;" disabled>نفدت الكمية 🚫</button>`;
+                    actionBtnHtml = `<button class="order-btn" style="background:#f2f2f2; color:#e74c3c; cursor:not-allowed;" disabled>نفدت الكمية 🚫</button>`;
                 }
 
                 grid.innerHTML += `
@@ -512,10 +518,7 @@
 
         function openVariantSheet(id) {
             if(!currentBranchId) { alert("الرجاء تحديد الفرع من أعلى الشاشة أولاً لتتمكن من الطلب."); return; }
-            if(!isBranchOnline) { 
-                alert("عذراً، هذا الفرع لا يستقبل طلبات في الوقت الحالي. يرجى اختيار فرع آخر أو المحاولة لاحقاً."); 
-                return; 
-            }
+            if(!isBranchOnline) { return; }
 
             let item = allItems.find(i => i.id === id);
             if(!item) return;
@@ -701,6 +704,7 @@
                     if(!order) return;
 
                     let bell = document.getElementById('bell-sound');
+                    let btnClose = document.getElementById('btn-close-waiting');
                     
                     if(order.status === 'accepted') {
                         bell.play().catch(e => console.log("Sound blocked by browser"));
@@ -711,8 +715,11 @@
                         document.getElementById('waiting-title').style.color = "#27ae60";
                         document.getElementById('waiting-desc').innerText = "طلبك قيد التجهيز في الفرع الآن.\nرقم الطلب: #" + activeOrderId;
                         document.getElementById('btn-wa-link').style.display = 'block';
-                        document.getElementById('btn-close-waiting').innerText = "إنهاء وإغلاق";
-                        document.getElementById('btn-close-waiting').style.display = 'block';
+                        
+                        btnClose.innerText = "إنهاء وإغلاق";
+                        btnClose.onclick = () => location.reload(); // مسح كل شيء فقط عند اكتمال الطلب بنجاح
+                        btnClose.style.display = 'block';
+                        
                         myCart = []; updateCartUI(); 
                     } 
                     else if(order.status === 'rejected') {
@@ -720,15 +727,24 @@
                         document.getElementById('waiting-spinner').style.display = 'none';
                         document.getElementById('status-icon').innerText = "❌";
                         document.getElementById('status-icon').style.display = 'block';
-                        document.getElementById('waiting-title').innerText = "نعتذر منك";
+                        document.getElementById('waiting-title').innerText = "تنبيه من الفرع";
                         document.getElementById('waiting-title').style.color = "#e74c3c";
-                        document.getElementById('waiting-desc').innerText = "تم رفض الطلب. السبب: " + (order.rejectReason || "ضغط عمل وتزاحم في الفرع");
-                        document.getElementById('btn-close-waiting').innerText = "رجوع وتعديل الطلب 🔙";
-                        document.getElementById('btn-close-waiting').style.display = 'block';
+                        document.getElementById('waiting-desc').innerText = "تم إرجاع الطلب. السبب:\n" + (order.rejectReason || "ضغط عمل وتزاحم في الفرع");
+                        
+                        // التعديل السحري: الرجوع يفتح السلة مباشرة ليتمكن الزبون من التعديل دون ضياع بياناته
+                        btnClose.innerText = "تعديل الطلب وإعادة إرساله 🔙";
+                        btnClose.onclick = () => {
+                            document.getElementById('waiting-modal').style.display = 'none';
+                            openCartModal(); 
+                        };
+                        btnClose.style.display = 'block';
                     }
                 });
 
-            }).catch(e => { alert("حدث خطأ في الاتصال بالإنترنت."); location.reload(); });
+            }).catch(e => { 
+                alert("حدث خطأ في الاتصال بالإنترنت."); 
+                document.getElementById('waiting-modal').style.display = 'none'; 
+            });
         }
 
         function openWhatsApp() {

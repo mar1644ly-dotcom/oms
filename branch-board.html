@@ -2,241 +2,581 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شاشة عمليات الفرع - حلواني الفايدي</title>
+    <title>شاشة الفرع - الفايدي POS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    
-    <!-- مكتبات فايربيز -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
-        .header { background: #004d4d; color: #EEDC82; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0; font-size: 20px; font-weight: 900; }
+        :root { 
+            --primary: #800020; 
+            --secondary: #D4AF37; 
+            --bg: #fdfbf7;
+            --text-dark: #333;
+        }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; color: var(--text-dark); }
         
-        .login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; border-top: 5px solid #004d4d; }
-        .login-box select { width: 100%; padding: 12px; margin-top: 20px; border-radius: 8px; border: 2px solid #ccc; font-family: 'Cairo'; font-weight: bold; outline: none; font-size: 16px; }
-        .login-box button { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; border: none; background: #004d4d; color: white; font-family: 'Cairo'; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .login-box button:hover { background: #EEDC82; color: #004d4d; }
+        .header { 
+            background: linear-gradient(135deg, var(--primary), #4a0012); 
+            color: var(--secondary); 
+            padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header h2 { margin: 0; font-weight: 900; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        select, input[type="text"], input[type="date"] {
+            padding: 8px 15px; font-family: 'Cairo'; font-weight: bold; border-radius: 8px;
+            border: 2px solid var(--secondary); background: rgba(255,255,255,0.1); color: #fff;
+            outline: none; cursor: pointer;
+        }
+        select option { color: #333; }
+        input[type="date"] { background: #fff; color: var(--primary); border-color: #ddd; }
 
-        .dashboard { display: none; padding: 20px; }
-        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .nav-tabs { 
+            display: flex; background: #fff; margin: 15px; border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee;
+        }
+        .nav-tabs button { 
+            flex: 1; padding: 15px; border: none; background: none; font-family: 'Cairo'; 
+            font-weight: 900; font-size: 15px; cursor: pointer; color: #888; transition: 0.3s;
+        }
+        .nav-tabs button.active { background: rgba(212, 175, 55, 0.1); color: var(--primary); border-bottom: 4px solid var(--secondary); }
         
-        .order-card { background: white; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); border: 2px solid #eee; overflow: hidden; position: relative; animation: slideIn 0.5s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { padding: 0 15px 20px 15px; display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .order-card.pending { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
-        .order-card.accepted { border-color: #f39c12; }
+        .order-card { 
+            background: white; border-radius: 16px; border: 1px solid #eee; margin-bottom: 15px; 
+            padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); transition: 0.3s;
+            border-right: 5px solid #ccc;
+        }
+        .order-card.pending { border-right-color: #e74c3c; background: #fffafa; }
+        .order-card.accepted { border-right-color: #f39c12; background: #fdfbf7; }
         
-        .order-header { padding: 12px 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        .pending .order-header { background: #e74c3c; }
-        .accepted .order-header { background: #f39c12; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .order-id { font-size: 18px; font-weight: 900; color: var(--primary); }
+        .order-total { font-size: 18px; font-weight: 900; color: #d35400; background: #fff5e6; padding: 4px 12px; border-radius: 8px; }
         
-        .order-body { padding: 15px; }
-        .customer-info { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; border: 1px dashed #ccc; }
-        .customer-info span { font-weight: bold; color: #004d4d; }
+        .customer-info { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; color: #555; }
+        .items-list { font-size: 15px; line-height: 1.8; font-weight: bold; }
         
-        .items-list { list-style: none; padding: 0; margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .items-list li { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: bold; }
-        
-        .total-price { text-align: left; font-size: 18px; font-weight: 900; color: #d35400; margin-bottom: 15px; }
-        
-        .actions { display: flex; gap: 10px; }
-        .btn-act { flex: 1; padding: 10px; border: none; border-radius: 6px; font-family: 'Cairo'; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; font-size: 14px; }
-        .btn-accept { background: #27ae60; }
-        .btn-reject { background: #c0392b; }
-        .btn-complete { background: #3498db; }
-        .btn-act:hover { filter: brightness(1.1); }
+        .btn-act { 
+            padding: 12px 20px; border: none; border-radius: 8px; font-weight: 900; font-family: 'Cairo'; 
+            cursor: pointer; color: white; width: 100%; margin-top: 15px; font-size: 15px; transition: 0.2s;
+        }
 
-        .empty-state { text-align: center; color: #7f8c8d; font-weight: bold; padding: 50px; grid-column: 1 / -1; font-size: 18px; }
+        .toggle-switch { 
+            display: flex; justify-content: space-between; background: white; padding: 10px 15px; 
+            border-radius: 12px; margin-bottom: 10px; font-weight: bold; align-items: center; 
+            border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .main-toggle { background: linear-gradient(135deg, var(--primary), #4a0012); color: var(--secondary); border: none; padding: 15px 20px; }
+        
+        .switch { position: relative; display: inline-block; width: 54px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 30px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #27ae60; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 3000; 
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: #fff; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-box select, .modal-box input[type="text"] {
+            color: #333; background: #fff; border: 1px solid #ccc; width: 100%; box-sizing: border-box; margin-bottom: 15px;
+        }
+
+        .report-summary-cards { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-card { flex: 1; min-width: 120px; background: #fff; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .stat-card h4 { margin: 0 0 10px 0; color: #888; font-size: 14px; }
+        .stat-card .val { font-size: 24px; font-weight: 900; color: var(--primary); }
+        .stat-card .val.green { color: #27ae60; }
+        .stat-card .val.red { color: #e74c3c; }
+
+        .report-table-container { background: #fff; border-radius: 12px; border: 1px solid #eee; overflow-x: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .report-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        .report-table th, .report-table td { padding: 12px 15px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px; }
+        .report-table th { background: #f9f9f9; color: var(--primary); font-weight: 900; }
+        .report-table tr:hover { background: #fdfbf7; }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .st-completed { background: #e8f5e9; color: #2e7d32; }
+        .st-rejected { background: #ffeaea; color: #e74c3c; }
+        .st-pending { background: #fff3e0; color: #ef6c00; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; font-family: 'Cairo', sans-serif; color: black; border: none; }
+            .no-print { display: none !important; }
+            .print-a4 { width: 100% !important; max-width: 210mm; margin: 0 auto; }
+            .print-a4 table { width: 100%; border-collapse: collapse; }
+            .print-a4 th, .print-a4 td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+            .print-a4 th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
+            .print-thermal { width: 80mm !important; font-size: 14px; }
+        }
     </style>
 </head>
 <body>
-
-    <!-- التنبيه الصوتي للطلبات الجديدة -->
     <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
-    <div class="header">
-        <h1>حلواني الفايدي - شاشة العمليات</h1>
-        <div id="branch-name-display" style="font-weight: bold; font-size: 14px;">الرجاء تسجيل الدخول</div>
-    </div>
-
-    <!-- شاشة اختيار الفرع -->
-    <div class="login-section" id="login-section">
-        <div class="login-box">
-            <h2 style="color: #004d4d; margin-top:0;">تسجيل دخول الفرع</h2>
-            <select id="branch-select">
-                <option value="" disabled selected>جاري تحميل الفروع...</option>
+    <!-- 1. نافذة إغلاق الفرع الذكية -->
+    <div class="modal-overlay" id="close-branch-modal">
+        <div class="modal-box">
+            <h3 style="color:var(--primary); margin-top:0;">إيقاف استقبال الطلبات 🛑</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:15px;">حدد سبب إغلاق الفرع ليتم تسجيله في النظام:</p>
+            <select id="branch-close-reason">
+                <option value="إغلاق / نهاية الدوام">إغلاق / نهاية الدوام</option>
+                <option value="استراحة كاشير">استراحة كاشير</option>
+                <option value="انقطاع الإنترنت">انقطاع الإنترنت / المنظومة</option>
             </select>
-            <button onclick="loginBranch()">دخول لِشاشة الاستقبال 🚀</button>
-        </div>
-    </div>
-
-    <!-- شاشة الطلبات الحية -->
-    <div class="dashboard" id="dashboard">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="color: #004d4d; margin: 0;">الطلبات النشطة (Live)</h2>
             <div style="display:flex; gap:10px;">
-                <span style="background:#e74c3c; color:white; padding:5px 10px; border-radius:15px; font-size:12px; font-weight:bold;">قيد الانتظار: <span id="count-pending">0</span></span>
-                <span style="background:#f39c12; color:white; padding:5px 10px; border-radius:15px; font-size:12px; font-weight:bold;">قيد التجهيز: <span id="count-accepted">0</span></span>
+                <button class="btn-act" style="background:#e74c3c; margin:0;" onclick="confirmBranchClose()">تأكيد الإغلاق</button>
+                <button class="btn-act" style="background:#95a5a6; margin:0;" onclick="cancelBranchClose()">تراجع</button>
             </div>
         </div>
-        <div class="orders-grid" id="orders-grid">
-            <!-- ستظهر الطلبات هنا -->
+    </div>
+
+    <!-- 2. نافذة الإلغاء الكامل للطلب -->
+    <div class="modal-overlay" id="reject-modal">
+        <div class="modal-box">
+            <h3 style="color:var(--primary); margin-top:0;">إلغاء الطلب بالكامل ❌</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:15px;">سيظهر هذا السبب للزبون مباشرة في شاشة التتبع.</p>
+            <select id="reject-reason-select" onchange="toggleCustomReason()">
+                <option value="عذراً، نفدت بعض أو كل الأصناف المطلوبة">نفدت بعض أو كل الأصناف المطلوبة</option>
+                <option value="نعتذر، يوجد ضغط عمل وتزاحم شديد في الفرع حالياً">ضغط عمل وتزاحم في الفرع</option>
+                <option value="عذراً، المنطقة المحددة خارج نطاق التوصيل الخاص بالفرع">المنطقة خارج نطاق التوصيل</option>
+                <option value="other">سبب آخر (كتابة يدوية)...</option>
+            </select>
+            <input type="text" id="reject-custom-reason" placeholder="اكتب سبب الرفض هنا..." style="display:none;">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-act" style="background:#e74c3c; margin:0;" onclick="confirmReject()">تأكيد الإلغاء</button>
+                <button class="btn-act" style="background:#95a5a6; margin:0;" onclick="closeRejectModal()">تراجع</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // إعدادات فايربيز
-        firebase.initializeApp({ databaseURL: "https://faidy-web-app-default-rtdb.firebaseio.com", projectId: "faidy-web-app" });
-        const dbCloud = firebase.database();
-        const ROOT_PATH = 'FAIDY_OMS_V2/';
-        
-        let currentBranch = null;
-        let activeOrders = {};
+    <!-- 3. نافذة التعديل وتحديد النواقص (الإلغاء الجزئي) -->
+    <div class="modal-overlay" id="partial-reject-modal">
+        <div class="modal-box">
+            <h3 style="color:#f39c12; margin-top:0;">تحديد الأصناف غير المتوفرة ⚠️</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:15px;">حدد الأصناف الناقصة لإرجاع الطلب للزبون لكي يعدل السلة ويرسلها من جديد.</p>
+            
+            <div id="partial-items-list" style="text-align:right; margin-bottom:20px; border:1px solid #eee; border-radius:8px; padding:10px;">
+                <!-- سيتم تعبئة الأصناف هنا برمجياً -->
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn-act" style="background:#f39c12; margin:0;" onclick="confirmPartialReject()">إرجاع الطلب للزبون</button>
+                <button class="btn-act" style="background:#95a5a6; margin:0;" onclick="closePartialModal()">تراجع</button>
+            </div>
+        </div>
+    </div>
 
-        // تحميل الفروع في شاشة الدخول
+    <div class="header no-print">
+        <h2 style="margin:0;">POS الفايدي</h2>
+        <select id="branchLogin" onchange="login()">
+            <option value="" disabled selected>تحديد الفرع...</option>
+        </select>
+    </div>
+
+    <div class="nav-tabs no-print" id="tabs" style="display:none;">
+        <button class="active" onclick="switchTab('orders')">الطلبات النشطة</button>
+        <button onclick="switchTab('store')">إدارة المتجر</button>
+        <button onclick="switchTab('reports')">التقارير المحاسبية</button>
+    </div>
+
+    <!-- التبويب 1: الطلبات -->
+    <div id="tab-orders" class="tab-content active no-print">
+        <div id="orders-list" style="text-align:center; padding: 50px 0; color: #888; font-weight:bold;">الرجاء تحديد الفرع من الأعلى...</div>
+    </div>
+
+    <!-- التبويب 2: إدارة المتجر -->
+    <div id="tab-store" class="tab-content no-print">
+        <div class="toggle-switch main-toggle">
+            <div style="display:flex; flex-direction:column;">
+                <span style="font-size:18px;">استقبال الطلبات (الفرع متاح)</span>
+                <span style="font-size:12px; font-weight:400; color:#ddd;">إذا تم الإغلاق، لن يستطيع الزبون الطلب من المنيو</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="branchToggle" onchange="handleBranchToggle(this)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <h3 style="color:var(--primary); margin:25px 0 15px 0; font-weight:900;">إدارة توفر الأصناف في الفرع</h3>
+        <div id="stock-list"></div>
+    </div>
+
+    <!-- التبويب 3: التقارير -->
+    <div id="tab-reports" class="tab-content no-print">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <label style="font-weight:bold; color:var(--primary);">تاريخ التقرير:</label>
+                <input type="date" id="report-date" onchange="generateReport()">
+            </div>
+            <button class="btn-act" style="background:#2c3e50; width:auto; margin:0;" onclick="printA4Report()">🖨️ طباعة التقرير (A4)</button>
+        </div>
+
+        <div class="report-summary-cards">
+            <div class="stat-card">
+                <h4>إجمالي الإيرادات</h4>
+                <div class="val" id="rep-total-rev">0.00 د.ل</div>
+            </div>
+            <div class="stat-card">
+                <h4>طلبات مكتملة</h4>
+                <div class="val green" id="rep-completed-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>طلبات ملغية / مرتجعة</h4>
+                <div class="val red" id="rep-rejected-count">0</div>
+            </div>
+        </div>
+
+        <div class="report-table-container">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>الوقت والتاريخ</th>
+                        <th>التفاصيل والكمية</th>
+                        <th>الإجمالي</th>
+                        <th>الحالة / السبب</th>
+                    </tr>
+                </thead>
+                <tbody id="report-tbody">
+                    <tr><td colspan="5" style="text-align:center;">جاري تحميل البيانات...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="print-area" style="display:none;"></div>
+
+    <script>
+        firebase.initializeApp({ databaseURL: "https://faidy-web-app-default-rtdb.firebaseio.com", projectId: "faidy-web-app" });
+        const db = firebase.database();
+        let branch = ''; 
+        let currentRejectOrderId = null;
+        let currentPartialOrderId = null;
+        let allBranchOrders = []; 
+        let globalTotalSales = 0;
+        let globalTotalCount = 0;
+
+        document.getElementById('report-date').valueAsDate = new Date();
+
         window.onload = () => {
-            dbCloud.ref('OMS_SAAS_V1/Companies/faidy/settings/branches').once('value').then(snap => {
-                let sel = document.getElementById('branch-select');
+            db.ref('OMS_SAAS_V1/Companies/faidy/settings/branches').once('value').then(snap => {
+                let sel = document.getElementById('branchLogin');
                 if(snap.exists()) {
-                    sel.innerHTML = '<option value="" disabled selected>-- اختر الفرع الخاص بك --</option>';
-                    snap.val().forEach(b => { if(b) sel.innerHTML += `<option value="${b.id}">${b.name}</option>`; });
+                    let branches = snap.val() || [];
+                    branches.forEach(b => { if(b) sel.innerHTML += `<option value="${b.id}">${b.name}</option>`; });
                 } else {
-                    sel.innerHTML = '<option value="">لا توجد فروع مسجلة</option>';
+                    sel.innerHTML += `
+                        <option value="salmani">فرع السلماني</option>
+                        <option value="venice">فرع فينيسيا</option>
+                        <option value="st20">فرع شارع 20</option>
+                        <option value="airport">فرع طريق المطار</option>
+                        <option value="buatni">فرع بوعطني</option>
+                    `;
                 }
             });
         };
 
-        function loginBranch() {
-            let sel = document.getElementById('branch-select');
-            if(!sel.value) return alert("الرجاء اختيار الفرع أولاً");
-            
-            currentBranch = sel.value;
-            let branchText = sel.options[sel.selectedIndex].text;
-            
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('branch-name-display').innerText = "📍 فرع: " + branchText;
-            
-            // طلب إذن تشغيل الصوت من المتصفح (مهم جداً)
-            document.getElementById('alertSound').play().catch(e => console.log("المتصفح يمنع التشغيل التلقائي للصوت حتى يتفاعل المستخدم"));
-
-            startListeningToOrders();
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.nav-tabs button').forEach(e => e.classList.remove('active'));
+            document.getElementById('tab-'+t).classList.add('active');
+            event.target.classList.add('active');
+            if(t === 'reports') generateReport(); 
         }
 
-        function startListeningToOrders() {
-            let ordersRef = dbCloud.ref(ROOT_PATH + 'Live_Orders/' + currentBranch);
+        function login() {
+            branch = document.getElementById('branchLogin').value;
+            document.getElementById('tabs').style.display = 'flex';
+            document.getElementById('alertSound').play().catch(e=>{});
             
-            // عند إضافة طلب جديد أو تحديث طلب موجود
-            ordersRef.on('value', snap => {
-                activeOrders = snap.val() || {};
-                renderOrders();
-            });
-
-            // مراقبة الطلبات الجديدة فقط لإطلاق جرس التنبيه
-            ordersRef.on('child_added', snap => {
-                let order = snap.val();
-                if(order.status === 'pending') {
-                    playSound();
+            db.ref('FAIDY_OMS_V2/Live_Orders/' + branch).on('value', snap => {
+                let list = document.getElementById('orders-list'); list.innerHTML = '';
+                let hasActive = false;
+                allBranchOrders = []; 
+                
+                if(snap.exists()) {
+                    allBranchOrders = Object.values(snap.val());
+                    allBranchOrders.sort((a,b)=>b.timestamp-a.timestamp).forEach(o => {
+                        if(o.status === 'pending' || o.status === 'accepted') {
+                            hasActive = true;
+                            if(o.status === 'pending') document.getElementById('alertSound').play().catch(e=>{});
+                            
+                            let customerDetails = `الاسم: ${o.customer.name} | الهاتف: ${o.customer.phone} <br> الاستلام: ${o.customer.method === 'delivery' ? '🛵 توصيل (' + o.customer.address + ')' : '🚶‍♂️ من الفرع'}`;
+                            
+                            list.innerHTML += `
+                            <div class="order-card ${o.status}">
+                                <div class="order-header">
+                                    <span class="order-id">طلب #${o.id}</span>
+                                    <span class="order-total">${o.totalAmount} د.ل</span>
+                                </div>
+                                <div class="customer-info">${customerDetails}</div>
+                                <div class="items-list">${o.items.map(i=> `✔️ ${i.qty}x ${i.name} (${i.varName})`).join('<br>')}</div>
+                                
+                                ${o.status === 'pending' 
+                                    ? `<div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+                                        <button class="btn-act" style="background:#27ae60; flex:1; margin:0;" onclick="updOrd(${o.id},'accepted')">✅ قبول الطلب</button>
+                                        <button class="btn-act" style="background:#f39c12; flex:1; margin:0;" onclick="openPartialModal(${o.id}, '${btoa(encodeURIComponent(JSON.stringify(o.items)))}')">⚠️ تحديد نواقص</button>
+                                        <button class="btn-act" style="background:#e74c3c; flex:1; margin:0;" onclick="openRejectModal(${o.id})">❌ إلغاء كامل</button>
+                                       </div>` 
+                                    : `<button class="btn-act" style="background:#3498db; margin-top:15px;" onclick="completeAndPrint(${o.id}, '${btoa(encodeURIComponent(JSON.stringify(o)))}')">🖨️ طباعة وتسليم الطلب</button>`}
+                            </div>`;
+                        }
+                    });
                 }
+                
+                if(!hasActive) { list.innerHTML = '<div style="text-align:center; padding: 50px 0; color: #888; font-weight:bold;">لا توجد طلبات نشطة حالياً.</div>'; }
+                if(document.getElementById('tab-reports').classList.contains('active')) generateReport();
+            });
+
+            db.ref('FAIDY_OMS_V2/Branch_Presence/' + branch + '/online').on('value', snap => {
+                document.getElementById('branchToggle').checked = (snap.val() !== false);
+            });
+
+            db.ref('FAIDY_OMS_V2/Branch_Status/' + branch).on('value', snap => {
+                let data = snap.val() || { stock: {} };
+                db.ref('FAIDY_OMS_V2/Central_Items').once('value').then(s => {
+                    let stockList = document.getElementById('stock-list'); stockList.innerHTML = '';
+                    if(s.exists()){
+                        Object.values(s.val()).filter(i=> i.active !== false).forEach(i => {
+                            let isAvail = data.stock[i.id] !== false; 
+                            // جلب الصورة المصغرة (Thumbnail) للمنتج
+                            let imgWebp = `https://mar1644ly-dotcom.github.io/oms/Images/${i.id}.webp`;
+                            let imgFallback = `https://mar1644ly-dotcom.github.io/oms/Images/${i.id}.jpg`;
+                            
+                            stockList.innerHTML += `
+                            <div class="toggle-switch">
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <img src="${imgWebp}" style="width:45px; height:45px; border-radius:8px; object-fit:cover; border:1px solid #ddd;" onerror="this.onerror=null; this.src='${imgFallback}';">
+                                    <span>${i.name}</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" ${isAvail?'checked':''} onchange="toggleItem(${i.id}, this.checked)"><span class="slider"></span></label>
+                            </div>`;
+                        });
+                    }
+                });
             });
         }
 
-        function playSound() {
-            let audio = document.getElementById('alertSound');
-            audio.currentTime = 0;
-            audio.play().catch(e => {});
+        /* دوال المتجر وإغلاق الفرع */
+        function handleBranchToggle(checkbox) {
+            if(!checkbox.checked) {
+                document.getElementById('close-branch-modal').style.display = 'flex';
+                checkbox.checked = true; // نُبقي الزر مفعلاً ظاهرياً حتى يؤكد السبب
+            } else {
+                setBranchStatus(true, '');
+            }
+        }
+        
+        function confirmBranchClose() {
+            let reason = document.getElementById('branch-close-reason').value;
+            setBranchStatus(false, reason);
+            document.getElementById('branchToggle').checked = false;
+            document.getElementById('close-branch-modal').style.display = 'none';
+        }
+        
+        function cancelBranchClose() {
+            document.getElementById('branchToggle').checked = true;
+            document.getElementById('close-branch-modal').style.display = 'none';
         }
 
-        function renderOrders() {
-            let grid = document.getElementById('orders-grid');
-            grid.innerHTML = '';
+        function setBranchStatus(isOpen, reason) {
+            db.ref('FAIDY_OMS_V2/Branch_Presence/' + branch + '/online').set(isOpen);
+            db.ref('FAIDY_OMS_V2/Branch_Status/' + branch + '/isOpen').set(isOpen);
+            if(!isOpen) db.ref('FAIDY_OMS_V2/Branch_Status/' + branch + '/offlineReason').set(reason);
+        }
+
+        function toggleItem(id, isAvail) { db.ref('FAIDY_OMS_V2/Branch_Status/' + branch + '/stock/' + id).set(isAvail); }
+        function updOrd(id, status) { db.ref('FAIDY_OMS_V2/Live_Orders/' + branch + '/' + id + '/status').set(status); }
+
+        /* دوال إلغاء الطلب الكامل */
+        function openRejectModal(id) {
+            currentRejectOrderId = id;
+            document.getElementById('reject-modal').style.display = 'flex';
+            document.getElementById('reject-custom-reason').style.display = 'none';
+        }
+        function closeRejectModal() { document.getElementById('reject-modal').style.display = 'none'; currentRejectOrderId = null; }
+        function toggleCustomReason() {
+            let sel = document.getElementById('reject-reason-select').value;
+            document.getElementById('reject-custom-reason').style.display = (sel === 'other') ? 'block' : 'none';
+        }
+        function confirmReject() {
+            if(!currentRejectOrderId) return;
+            let reason = document.getElementById('reject-reason-select').value;
+            if(reason === 'other') {
+                reason = document.getElementById('reject-custom-reason').value.trim();
+                if(!reason) { alert("الرجاء كتابة سبب الرفض لتوضيحه للزبون"); return; }
+            }
+            db.ref('FAIDY_OMS_V2/Live_Orders/' + branch + '/' + currentRejectOrderId).update({
+                status: 'rejected', rejectReason: reason
+            }).then(() => { closeRejectModal(); });
+        }
+
+        /* دوال الإلغاء الجزئي (تحديد النواقص) */
+        function openPartialModal(id, itemsBase64) {
+            currentPartialOrderId = id;
+            let items = JSON.parse(decodeURIComponent(atob(itemsBase64)));
+            let list = document.getElementById('partial-items-list');
+            list.innerHTML = '';
             
-            let pendingCount = 0;
-            let acceptedCount = 0;
+            items.forEach((item, idx) => {
+                list.innerHTML += `
+                <label style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid #eee; cursor:pointer;">
+                    <input type="checkbox" value="${item.name}" class="partial-chk" style="width:20px; height:20px;">
+                    <span style="font-weight:bold;">${item.name} (${item.varName})</span>
+                </label>`;
+            });
+            document.getElementById('partial-reject-modal').style.display = 'flex';
+        }
+        
+        function closePartialModal() { document.getElementById('partial-reject-modal').style.display = 'none'; currentPartialOrderId = null; }
+        
+        function confirmPartialReject() {
+            let checkedItems = document.querySelectorAll('.partial-chk:checked');
+            if(checkedItems.length === 0) { alert('الرجاء تحديد صنف واحد على الأقل كـ "غير متوفر" لإرجاع الطلب.'); return; }
             
-            let ordersArray = Object.values(activeOrders).sort((a,b) => b.timestamp - a.timestamp); // الأحدث أولاً
+            let missingNames = Array.from(checkedItems).map(c => c.value).join('، ');
+            let reasonText = "عذراً، الأصناف التالية غير متوفرة حالياً: [" + missingNames + "]. يرجى تعديل السلة بحذفها وإعادة إرسال الطلب.";
             
-            if(ordersArray.filter(o => o.status === 'pending' || o.status === 'accepted').length === 0) {
-                grid.innerHTML = '<div class="empty-state">☕ لا توجد طلبات نشطة حالياً. الشاشة في وضع الاستعداد...</div>';
+            db.ref('FAIDY_OMS_V2/Live_Orders/' + branch + '/' + currentPartialOrderId).update({
+                status: 'rejected', rejectReason: reasonText
+            }).then(() => { closePartialModal(); });
+        }
+
+        /* دوال التقارير والطباعة */
+        function generateReport() {
+            let selectedDateStr = document.getElementById('report-date').value;
+            let tbody = document.getElementById('report-tbody');
+            tbody.innerHTML = '';
+            
+            let totalRev = 0, compCount = 0, rejCount = 0;
+            let filteredOrders = [];
+
+            allBranchOrders.forEach(o => {
+                let orderDate = new Date(o.timestamp);
+                let dateString = orderDate.getFullYear() + '-' + String(orderDate.getMonth() + 1).padStart(2, '0') + '-' + String(orderDate.getDate()).padStart(2, '0');
+                if(!selectedDateStr || dateString === selectedDateStr) { filteredOrders.push(o); }
+            });
+
+            filteredOrders.sort((a,b) => b.timestamp - a.timestamp);
+
+            if(filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#888;">لا توجد حركات مبيعات في هذا التاريخ.</td></tr>';
+            } else {
+                filteredOrders.forEach(o => {
+                    let timeStr = new Date(o.timestamp).toLocaleString('ar-LY');
+                    let itemsStr = o.items.map(i => `${i.qty}x ${i.name}`).join('<br>');
+                    
+                    let statusHtml = '';
+                    if(o.status === 'completed') {
+                        statusHtml = `<span class="status-badge st-completed">مكتمل</span>`;
+                        totalRev += parseFloat(o.totalAmount); compCount++;
+                    } else if (o.status === 'rejected') {
+                        statusHtml = `<span class="status-badge st-rejected">ملغي/مرتجع</span><br><span style="font-size:11px; color:#e74c3c;">${o.rejectReason || 'بدون سبب'}</span>`;
+                        rejCount++;
+                    } else {
+                        statusHtml = `<span class="status-badge st-pending">قيد الانتظار/التجهيز</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-weight:bold; color:var(--primary);">#${o.id}</td>
+                            <td style="font-size:12px; color:#555; direction:ltr;">${timeStr}</td>
+                            <td style="font-size:13px; line-height:1.6;">${itemsStr}</td>
+                            <td style="font-weight:900; color:#d35400;">${o.totalAmount} د.ل</td>
+                            <td>${statusHtml}</td>
+                        </tr>
+                    `;
+                });
             }
 
-            ordersArray.forEach(order => {
-                if(order.status === 'completed' || order.status === 'rejected') return; // لا نعرض الطلبات المنتهية هنا
-                
-                if(order.status === 'pending') pendingCount++;
-                if(order.status === 'accepted') acceptedCount++;
+            globalTotalSales = totalRev; globalTotalCount = compCount;
+            document.getElementById('rep-total-rev').innerText = totalRev.toFixed(2) + ' د.ل';
+            document.getElementById('rep-completed-count').innerText = compCount;
+            document.getElementById('rep-rejected-count').innerText = rejCount;
+        }
 
-                let timeString = new Date(order.timestamp).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
-                
-                let methodLabel = order.customer.method === 'delivery' ? '🛵 توصيل' : '🚶‍♂️ استلام من الفرع';
-                
-                let itemsHtml = '';
-                order.items.forEach(item => {
-                    itemsHtml += `<li><span>${item.qty}x ${item.name}</span> <span>${(item.price * item.qty).toFixed(2)}</span></li>`;
-                });
-
-                let buttonsHtml = '';
-                if(order.status === 'pending') {
-                    buttonsHtml = `
-                        <button class="btn-act btn-accept" onclick="updateOrderStatus(${order.id}, 'accepted')">✅ قبول (بدء التجهيز)</button>
-                        <button class="btn-act btn-reject" onclick="rejectOrder(${order.id})">❌ رفض الطلب</button>
-                    `;
-                } else if (order.status === 'accepted') {
-                    let completeText = order.customer.method === 'delivery' ? '🛵 تسليم للمندوب' : '📦 تسليم للزبون';
-                    buttonsHtml = `
-                        <button class="btn-act btn-complete" onclick="updateOrderStatus(${order.id}, 'completed')">${completeText}</button>
-                    `;
-                }
-
-                grid.innerHTML += `
-                    <div class="order-card ${order.status}">
-                        <div class="order-header">
-                            <span>طلب #${order.id}</span>
-                            <span>⏱️ ${timeString}</span>
-                        </div>
-                        <div class="order-body">
-                            <div class="customer-info">
-                                <div><span>الاسم:</span> ${order.customer.name}</div>
-                                <div><span>الهاتف:</span> <a href="tel:${order.customer.phone}" style="color:#004d4d;">${order.customer.phone}</a></div>
-                                <div><span>الاستلام:</span> ${methodLabel}</div>
-                                ${order.customer.method === 'delivery' ? `<div style="margin-top:5px; color:#c0392b; font-weight:bold;">📍 العنوان: ${order.customer.address}</div>` : ''}
-                            </div>
-                            
-                            <ul class="items-list">
-                                ${itemsHtml}
-                            </ul>
-                            
-                            <div class="total-price">الإجمالي: ${order.totalAmount.toFixed(2)} د.ل</div>
-                            
-                            <div class="actions">
-                                ${buttonsHtml}
-                            </div>
-                        </div>
+        function printA4Report() {
+            let branchName = document.getElementById('branchLogin').options[document.getElementById('branchLogin').selectedIndex].text;
+            let dateStr = document.getElementById('report-date').value || 'الكل';
+            let printArea = document.getElementById('print-area');
+            let tableContent = document.getElementById('report-tbody').innerHTML;
+            
+            let printHtml = `
+                <div class="print-a4">
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <h1 style="margin:0; color:#800020;">حلواني أبناء الفايدي</h1>
+                        <h3 style="margin:5px 0;">تقرير الإغلاق المحاسبي للوردية - ${branchName}</h3>
+                        <p style="margin:0; color:#555;">تاريخ الحركات: ${dateStr}</p>
                     </div>
-                `;
-            });
-
-            document.getElementById('count-pending').innerText = pendingCount;
-            document.getElementById('count-accepted').innerText = acceptedCount;
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; border:1px solid #ddd; padding:15px; background:#f9f9f9;">
+                        <div><b>إجمالي الإيرادات:</b> ${document.getElementById('rep-total-rev').innerText}</div>
+                        <div><b>طلبات مكتملة:</b> ${document.getElementById('rep-completed-count').innerText}</div>
+                        <div><b>طلبات ملغية:</b> ${document.getElementById('rep-rejected-count').innerText}</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>رقم الطلب</th>
+                                <th>الوقت والتاريخ</th>
+                                <th>التفاصيل والكمية</th>
+                                <th>الإجمالي</th>
+                                <th>الحالة / السبب</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableContent}</tbody>
+                    </table>
+                    <div style="margin-top:50px; display:flex; justify-content:space-around;">
+                        <div style="text-align:center;"><b>توقيع الكاشير (المُسَلِّم)</b><br><br>.......................................</div>
+                        <div style="text-align:center;"><b>توقيع الإدارة / المراجع</b><br><br>.......................................</div>
+                    </div>
+                </div>
+            `;
+            printArea.innerHTML = printHtml;
+            printArea.style.display = 'block'; window.print(); printArea.style.display = 'none';
         }
 
-        function updateOrderStatus(orderId, newStatus) {
-            dbCloud.ref(ROOT_PATH + 'Live_Orders/' + currentBranch + '/' + orderId).update({
-                status: newStatus
-            });
-        }
-
-        function rejectOrder(orderId) {
-            let reason = prompt("ما هو سبب الرفض؟ (سيظهر للزبون)");
-            if(reason === null) return; // تم الإلغاء
-            dbCloud.ref(ROOT_PATH + 'Live_Orders/' + currentBranch + '/' + orderId).update({
-                status: 'rejected',
-                rejectReason: reason || "نعتذر، ضغط عمل حالياً."
-            });
+        function completeAndPrint(id, orderData64) {
+            updOrd(id, 'completed');
+            let o = JSON.parse(decodeURIComponent(atob(orderData64)));
+            let branchName = document.getElementById('branchLogin').options[document.getElementById('branchLogin').selectedIndex].text;
+            
+            let printHtml = `
+                <div class="print-thermal">
+                    <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px; margin-bottom:10px;">
+                        <h2 style="margin:0;">حلواني أبناء الفايدي</h2>
+                        <p style="margin:0;">${branchName}</p>
+                        <b style="font-size:18px;">طلب #${o.id}</b>
+                    </div>
+                    <div style="margin-bottom:10px; font-size:12px;">
+                        <b>الزبون:</b> ${o.customer.name}<br>
+                        <b>الهاتف:</b> ${o.customer.phone}<br>
+                        <b>النوع:</b> ${o.customer.method === 'delivery' ? 'توصيل' : 'استلام من الفرع'}
+                    </div>
+                    <div style="border-top:1px dashed #000; padding-top:10px;">
+                    ${o.items.map(i=> `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${i.qty}x ${i.name}</span><span>${(i.price * i.qty).toFixed(2)} د.ل</span></div>`).join('')}
+                    </div>
+                    <div style="border-top:1px dashed #000; margin-top:10px; padding-top:10px; font-weight:bold; font-size:16px;">الإجمالي: ${o.totalAmount} د.ل</div>
+                    <div style="text-align:center; margin-top:15px; font-size:12px;">تاريخ: ${new Date(o.timestamp).toLocaleString('ar-LY')}</div>
+                </div>
+            `;
+            let printArea = document.getElementById('print-area');
+            printArea.innerHTML = printHtml;
+            printArea.style.display = 'block'; window.print(); printArea.style.display = 'none';
         }
     </script>
 </body>
